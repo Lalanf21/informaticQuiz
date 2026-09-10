@@ -14,7 +14,8 @@ migrate();
 
 export const app = express();
 app.use(helmet());
-app.use(cors({ origin: 'http://localhost:5173' }));
+const allowedOrigin = process.env.CLIENT_ORIGIN || /^http:\/\/localhost:\d+$/;
+app.use(cors({ origin: allowedOrigin, credentials: true }));
 app.use(express.json());
 
 app.use('/api/topics', topicsRouter);
