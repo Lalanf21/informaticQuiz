@@ -23,7 +23,7 @@ function SortableItem({ id }: { id: string }) {
       style={style}
       {...attributes}
       {...listeners}
-      className="p-3 bg-white border rounded-lg cursor-move select-none"
+      className="p-3 bg-white border rounded-lg cursor-move select-none touch-none"
     >
       {id}
     </div>
@@ -37,6 +37,12 @@ export default function OrderingQuestion({ items, initialOrder, onAnswer }: Prop
   useEffect(() => {
     setOrder(initialOrder || items);
   }, [items, initialOrder]);
+
+  useEffect(() => {
+    if (!initialOrder && items.length > 0) {
+      onAnswer(items);
+    }
+  }, []);
 
   const onDragEnd = (e: DragEndEvent) => {
     const { active, over } = e;

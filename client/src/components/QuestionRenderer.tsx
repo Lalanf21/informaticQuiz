@@ -17,6 +17,7 @@ export default function QuestionRenderer({ question, initialAnswer, onAnswer }: 
     case 'pg':
       return (
         <PgQuestion
+          key={question.id}
           options={p?.options || []}
           initialAnswer={initialAnswer?.index as number | undefined}
           onAnswer={(i) => onAnswer({ index: i })}
@@ -25,6 +26,7 @@ export default function QuestionRenderer({ question, initialAnswer, onAnswer }: 
     case 'tf':
       return (
         <TfQuestion
+          key={question.id}
           initialAnswer={initialAnswer?.value as boolean | undefined}
           onAnswer={(v) => onAnswer({ value: v })}
         />
@@ -32,6 +34,7 @@ export default function QuestionRenderer({ question, initialAnswer, onAnswer }: 
     case 'matching':
       return (
         <MatchingQuestion
+          key={question.id}
           pairs={p?.pairs || []}
           rights={p?.rights || []}
           initialAnswer={initialAnswer as Record<string, string> | undefined}
@@ -41,6 +44,7 @@ export default function QuestionRenderer({ question, initialAnswer, onAnswer }: 
     case 'ordering':
       return (
         <OrderingQuestion
+          key={question.id}
           items={p?.items || []}
           initialOrder={initialAnswer?.order as string[] | undefined}
           onAnswer={(o) => onAnswer({ order: o })}

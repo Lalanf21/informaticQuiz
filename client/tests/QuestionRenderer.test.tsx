@@ -198,10 +198,55 @@ describe('QuestionRenderer', () => {
       const jakartaBtn = screen.getByRole('button', { name: 'Jakarta' });
       expect(jakartaBtn).toBeDisabled();
     });
+
+    it('allows unpairing a paired left item to free up the right item for reassignment', () => {
+      const onAnswer = vi.fn();
+      const question: ClientQuestion = {
+        id: 8,
+        type: 'matching',
+        prompt: 'Pasangkan data',
+        payload: {
+          pairs: ['A', 'B'],
+          rights: ['1', '2'],
+        },
+        points: 10,
+      };
+
+      render(<QuestionRenderer question={question} onAnswer={onAnswer} />);
+
+      const btnA = screen.getByRole('button', { name: 'A' });
+      const btnB = screen.getByRole('button', { name: 'B' });
+      const btn1 = screen.getByRole('button', { name: '1' });
+
+      // Pair A with 1
+      fireEvent.click(btnA);
+      fireEvent.click(btn1);
+      expect(onAnswer).toHaveBeenCalledWith({ A: '1' });
+      expect(btn1).toBeDisabled();
+
+      // Re-click paired item A to unpair it
+      fireEvent.click(screen.getByRole('button', { name: /A.*→ 1/ }));
+      fireEvent.click(screen.getByRole('button', { name: /A.*→ 1/ }));
+
+      // Mapping should now be empty and 1 should be freed up (not disabled)
+      expect(onAnswer).toHaveBeenLastCalledWith({});
+      expect(btn1).not.toBeDisabled();
+
+      // Pair B with 1 now that 1 is free
+      fireEvent.click(btnB);
+      fireEvent.click(btn1);
+      expect(onAnswer).toHaveBeenLastCalledWith({ B: '1' });
+
+      // Can also unpair via explicit "Hapus" button
+      const hapusBtn = screen.getByRole('button', { name: /Hapus pasangan B/i });
+      fireEvent.click(hapusBtn);
+      expect(onAnswer).toHaveBeenLastCalledWith({});
+      expect(btn1).not.toBeDisabled();
+    });
   });
 
   describe('ordering questions', () => {
-    it('renders all sortable items in order', () => {
+    it('renders all sortable items in order and emits initial order if not set', () => {
       const onAnswer = vi.fn();
       const question: ClientQuestion = {
         id: 6,
@@ -213,12 +258,21 @@ describe('QuestionRenderer', () => {
         points: 20,
       };
 
-      render(<QuestionRenderer question={question} onAnswer={onAnswer} />);
+      const { container } = render(<QuestionRenderer question={question} onAnswer={onAnswer} />);
 
       expect(screen.getByText('Perencanaan')).toBeInTheDocument();
       expect(screen.getByText('Analisis')).toBeInTheDocument();
       expect(screen.getByText('Desain')).toBeInTheDocument();
       expect(screen.getByText('Implementasi')).toBeInTheDocument();
+
+      const items = container.querySelectorAll('.cursor-move');
+      items.forEach((item) => {
+        expect(item.className).toContain('touch-none');
+      });
+
+      expect(onAnswer).toHaveBeenCalledWith({
+        order: ['Perencanaan', 'Analisis', 'Desain', 'Implementasi'],
+      });
     });
 
     it('renders custom order if provided in initialAnswer', () => {
@@ -247,6 +301,42 @@ describe('QuestionRenderer', () => {
       expect(items[0].textContent).toContain('Tiga');
       expect(items[1].textContent).toContain('Satu');
       expect(items[2].textContent).toContain('Dua');
+    });
+  });
+
+  describe('question key isolation', () => {
+    it('does not bleed selection state when switching between consecutive questions of same type', () => {
+      const onAnswer = vi.fn();
+      const q1: ClientQuestion = {
+        id: 101,
+        type: 'tf',
+        prompt: 'Soal TF 1',
+        payload: {},
+        points: 10,
+      };
+      const q2: ClientQuestion = {
+        id: 102,
+        type: 'tf',
+        prompt: 'Soal TF 2',
+        payload: {},
+        points: 10,
+      };
+
+      const { rerender } = render(<QuestionRenderer question={q1} onAnswer={onAnswer} />);
+
+      // Click Benar on Q1 -> button becomes green
+      const btnBenar = screen.getByRole('button', { name: 'Benar' });
+      fireEvent.click(btnBenar);
+      expect(btnBenar.className).toContain('bg-green-500');
+
+      // Navigate to Q2 without initialAnswer
+      rerender(<QuestionRenderer question={q2} onAnswer={onAnswer} />);
+
+      // Buttons on Q2 should be reset / unselected
+      const newBtnBenar = screen.getByRole('button', { name: 'Benar' });
+      const newBtnSalah = screen.getByRole('button', { name: 'Salah' });
+      expect(newBtnBenar.className).not.toContain('bg-green-500');
+      expect(newBtnSalah.className).not.toContain('bg-red-500');
     });
   });
 
