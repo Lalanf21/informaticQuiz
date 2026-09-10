@@ -69,6 +69,20 @@ describe('GET /api/scores/leaderboard', () => {
     expect(res.body[0].student_name).toBe('Citra');
   });
 
+  it('falls back to default limit for 0, negative, or invalid limit', async () => {
+    const resZero = await request(app).get('/api/scores/leaderboard?limit=0');
+    expect(resZero.status).toBe(200);
+    expect(resZero.body.length).toBe(3);
+
+    const resNeg = await request(app).get('/api/scores/leaderboard?limit=-5');
+    expect(resNeg.status).toBe(200);
+    expect(resNeg.body.length).toBe(3);
+
+    const resNan = await request(app).get('/api/scores/leaderboard?limit=abc');
+    expect(resNan.status).toBe(200);
+    expect(resNan.body.length).toBe(3);
+  });
+
   it('works via mounted main app', async () => {
     const { app: mainApp } = await import('../src/index');
     const res = await request(mainApp).get('/api/scores/leaderboard');
