@@ -149,4 +149,17 @@ describe('Result page', () => {
       expect(screen.getByText('80%')).toBeInTheDocument();
     });
   });
+
+  it('renders error state when fetching result fails', async () => {
+    vi.mocked(api.get).mockRejectedValue(new Error('Network error'));
+    renderResult();
+
+    await waitFor(() => {
+      expect(screen.getByText('Gagal memuat hasil kuis.')).toBeInTheDocument();
+    });
+    expect(screen.getByRole('button', { name: 'Kembali ke Topik' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Kembali ke Topik' }));
+    expect(mockedNavigate).toHaveBeenCalledWith('/topics');
+  });
 });
