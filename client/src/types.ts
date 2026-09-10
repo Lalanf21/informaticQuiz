@@ -21,15 +21,21 @@ export interface QuizSession {
 
 export interface Score {
   id: number;
-  sessionId: string;
-  studentName: string;
+  sessionId?: string;
+  session_id?: string;
+  studentName?: string;
+  student_name?: string;
   grade: Grade;
-  topicId: number | null;
+  topicId?: number | null;
+  topic_id?: number | null;
   mode: Mode;
-  totalPoints: number;
-  maxPoints: number;
+  totalPoints?: number;
+  total_points?: number;
+  maxPoints?: number;
+  max_points?: number;
   percentage: number;
-  finishedAt: string;
+  finishedAt?: string;
+  finished_at?: string;
 }
 
 export interface Topic {

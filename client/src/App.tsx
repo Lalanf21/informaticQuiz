@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import Topics from './pages/Topics';
 import QuizPlay from './pages/QuizPlay';
 import Result from './pages/Result';
+import Leaderboard from './pages/Leaderboard';
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
       <Route path="/topics" element={<Topics />} />
       <Route path="/quiz/:sessionId" element={<QuizPlay />} />
       <Route path="/result/:sessionId" element={<Result />} />
+      <Route path="/leaderboard" element={<Leaderboard />} />
     </Routes>
   );
 }
