@@ -7,6 +7,8 @@ import CampaignLevel from './pages/CampaignLevel';
 import QuizPlay from './pages/QuizPlay';
 import Result from './pages/Result';
 import Leaderboard from './pages/Leaderboard';
+import AdminLogin from './pages/AdminLogin';
+import AdminRegister from './pages/AdminRegister';
 
 export default function App() {
   return (
@@ -19,6 +21,8 @@ export default function App() {
       <Route path="/quiz/:sessionId" element={<QuizPlay />} />
       <Route path="/result/:sessionId" element={<Result />} />
       <Route path="/leaderboard" element={<Leaderboard />} />
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin/register" element={<AdminRegister />} />
     </Routes>
   );
 }
