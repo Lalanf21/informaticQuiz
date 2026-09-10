@@ -82,7 +82,9 @@ export default function Result() {
         </div>
         {s.mode === 'campaign' && s.percentage >= 70 && (
           <div className="mb-6 p-3 bg-green-100 text-green-800 rounded-lg text-center font-medium">
-            Selamat! Kamu berhasil membuka level berikutnya!
+            {data.level === 3
+              ? 'Selamat! Kamu telah menuntaskan semua level di topik ini!'
+              : 'Selamat! Kamu berhasil membuka level berikutnya!'}
           </div>
         )}
         <div className="space-y-2 mb-6">

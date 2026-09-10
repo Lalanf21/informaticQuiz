@@ -206,8 +206,38 @@ describe('Campaign mode', () => {
       expect(mockedNavigate).toHaveBeenCalledWith('/');
     });
 
+    it('redirects to "/campaign" when accessing a locked level directly via URL', () => {
+      usePlayerStore.setState({ name: 'Budi', grade: 7, sessionId: null });
+      // default progress is 1, so level 2 is locked
+      render(
+        <MemoryRouter initialEntries={['/campaign/1/2']}>
+          <Routes>
+            <Route path="/campaign/:topicId/:n" element={<CampaignLevel />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      expect(mockedNavigate).toHaveBeenCalledWith('/campaign');
+      expect(api.post).not.toHaveBeenCalled();
+    });
+
+    it('redirects to "/campaign" when level number is invalid (not 1, 2, or 3)', () => {
+      usePlayerStore.setState({ name: 'Budi', grade: 7, sessionId: null });
+      render(
+        <MemoryRouter initialEntries={['/campaign/1/4']}>
+          <Routes>
+            <Route path="/campaign/:topicId/:n" element={<CampaignLevel />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      expect(mockedNavigate).toHaveBeenCalledWith('/campaign');
+      expect(api.post).not.toHaveBeenCalled();
+    });
+
     it('initiates campaign session via POST /api/sessions and navigates to /quiz/:sessionId', async () => {
       usePlayerStore.setState({ name: 'Budi', grade: 7, sessionId: null });
+      localStorage.setItem('campaign-progress', JSON.stringify({ 1: 2 }));
       vi.mocked(api.post).mockResolvedValue({ data: { sessionId: 'sess-camp-999' } });
 
       render(

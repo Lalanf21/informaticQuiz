@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useQuizStore } from '../stores/useQuizStore';
+import { getProgress } from './Campaign';
 
 export default function CampaignLevel() {
   const { topicId, n } = useParams();
@@ -17,13 +18,20 @@ export default function CampaignLevel() {
       return;
     }
 
+    const tId = Number(topicId);
+    const levelNum = Number(n);
+    if (![1, 2, 3].includes(levelNum) || levelNum > getProgress(tId)) {
+      navigate('/campaign');
+      return;
+    }
+
     api
       .post('/api/sessions', {
         studentName: player.name,
         grade: player.grade,
         mode: 'campaign',
-        topicId: Number(topicId),
-        level: Number(n),
+        topicId: tId,
+        level: levelNum,
       })
       .then((r) => {
         const id = r.data.sessionId;

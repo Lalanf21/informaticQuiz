@@ -191,6 +191,28 @@ describe('Result page', () => {
     expect(mockedNavigate).toHaveBeenCalledWith('/campaign');
   });
 
+  it('displays special victory message when completing level 3 with >= 70%', async () => {
+    localStorage.clear();
+    const level3PassData = {
+      score: {
+        mode: 'campaign',
+        percentage: 85,
+        total_points: 85,
+        max_points: 100,
+      },
+      answers: [],
+      level: 3,
+      topicId: 2,
+    };
+    vi.mocked(api.get).mockResolvedValue({ data: level3PassData });
+    renderResult('sess-camp-lvl3');
+
+    await waitFor(() => {
+      expect(screen.getByText('Selamat! Kamu telah menuntaskan semua level di topik ini!')).toBeInTheDocument();
+      expect(screen.queryByText('Selamat! Kamu berhasil membuka level berikutnya!')).not.toBeInTheDocument();
+    });
+  });
+
   it('does not unlock next level when campaign mode score is < 70%', async () => {
     localStorage.clear();
     const campaignFailedData = {
