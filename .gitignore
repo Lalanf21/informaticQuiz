@@ -3,6 +3,8 @@ dist/
 .env
 *.db
 data/
+test-results/
+playwright-report/
 
 # JCE context index runtime state
 .opencode-jce/context/
