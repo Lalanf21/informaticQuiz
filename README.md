@@ -62,6 +62,7 @@ npm run install:all  # client + server
 
 ```bash
 cp server/.env.example server/.env
+cp client/.env.example client/.env
 ```
 
 Edit `server/.env`:
@@ -71,6 +72,12 @@ PORT=3001
 JWT_SECRET=ganti-dengan-secret-acak-anda
 REGISTRATION_KEY=kode-registrasi-guru-anda
 DATABASE_PATH=../data/informaticquiz.db
+```
+
+Edit `client/.env` (opsional jika backend di port default 3001 / optional if default backend):
+
+```env
+VITE_API_URL=http://localhost:3001
 ```
 
 ### 4. Migrasi & seed database / Migrate & seed database
