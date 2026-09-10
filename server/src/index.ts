@@ -7,6 +7,7 @@ import { sessionsRouter } from './routes/sessions';
 import { quizzesRouter } from './routes/quizzes';
 import { scoresRouter } from './routes/scores';
 import { adminAuthRouter } from './routes/adminAuth';
+import { adminRouter } from './routes/admin';
 import { errorHandler } from './middleware/errorHandler';
 
 migrate();
@@ -21,6 +22,7 @@ app.use('/api/sessions', sessionsRouter);
 app.use('/api/quizzes', quizzesRouter);
 app.use('/api/scores', scoresRouter);
 app.use('/api/admin', adminAuthRouter);
+app.use('/api/admin', adminRouter);
 
 app.use(errorHandler);
 
