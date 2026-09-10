@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { usePlayerStore } from '../stores/usePlayerStore';
+import { useQuizStore } from '../stores/useQuizStore';
 import type { Topic } from '../types';
 
 export default function Topics() {
@@ -42,6 +43,7 @@ export default function Topics() {
         topicId,
       });
       player.setSessionId(res.data.sessionId);
+      useQuizStore.setState({ mode: 'topic' });
       navigate(`/quiz/${res.data.sessionId}`);
     } catch (err) {
       console.error('Failed to start quiz session', err);
