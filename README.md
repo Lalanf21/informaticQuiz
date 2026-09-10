@@ -92,6 +92,7 @@ cd ..
 Akun guru demo / Demo teacher account:
 - Username: `guru`
 - Password: `guru123`
+- Default Registration Key: `sekolah-bisa` (untuk register akun guru baru)
 
 ### 5. Jalankan dev server / Run dev server
 
@@ -99,8 +100,16 @@ Akun guru demo / Demo teacher account:
 npm run dev
 ```
 
-- Client: <http://localhost:5173>
-- Server: <http://localhost:3001>
+> **Catatan Dynamic Port:** Perintah `npm run dev` menjalankan script runner cerdas (`scripts/dev.js`):
+> 1. Otomatis cek database SQLite (`data/informaticquiz.db`), lakukan migrasi dan seed bila belum ada.
+> 2. Mencari port backend yang tersedia mulai dari 3001 (otomatis increment bila port sedang dipakai).
+> 3. Menunggu backend aktif dan merespons healthcheck.
+> 4. Mencari port frontend yang tersedia mulai dari 5173 (otomatis increment bila port sedang dipakai).
+> 5. Menjalankan frontend Vite dengan `VITE_API_URL` terhubung otomatis ke port dinamis backend.
+> 6. Menampilkan URL aktif di terminal dan menghentikan kedua server secara bersih saat `Ctrl+C`.
+
+- Client: <http://localhost:5173> (atau port hasil increment)
+- Server: <http://localhost:3001> (atau port hasil increment)
 
 ---
 
@@ -196,13 +205,16 @@ Detail lengkap: `docs/superpowers/specs/2026-09-10-informaticquiz-design.md`
 ## Testing
 
 ```bash
-# Server unit tests
-cd server && npm test
+# Jalankan seluruh unit test (server + client) dari root
+npm test
 
-# Client unit tests
-cd client && npm test
+# Server unit tests saja
+npm test --prefix server
 
-# E2e (Playwright — butuh dev server berjalan)
+# Client unit tests saja
+npm test --prefix client
+
+# E2E Tests (Playwright — otomatis setup database, migrasi & seed)
 cd client && npm run test:e2e
 ```
 
