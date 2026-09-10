@@ -11,7 +11,7 @@ export default function QuizPlay() {
   const { sessionId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { questions, currentIndex, answers, setQuestions, setAnswer, next, prev, mode } = useQuizStore();
+  const { questions, currentIndex, answers, startedAt, setQuestions, setAnswer, next, prev, mode } = useQuizStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -61,7 +61,9 @@ export default function QuizPlay() {
   return (
     <div className="min-h-screen p-8 bg-gray-50">
       <div className="max-w-2xl mx-auto">
-        {challengeSeconds > 0 && <Timer seconds={challengeSeconds} onExpire={submit} />}
+        {challengeSeconds > 0 && (
+          <Timer seconds={challengeSeconds} onExpire={submit} startedAt={startedAt ?? undefined} />
+        )}
         <ProgressBar current={currentIndex} total={questions.length} />
         <div className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-xl font-semibold mb-4">{q.prompt}</h2>

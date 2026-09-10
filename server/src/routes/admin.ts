@@ -3,6 +3,7 @@ import { db } from '../db/db';
 import { authJwt } from '../middleware/authJwt';
 import { validateBody } from '../middleware/validateBody';
 import { validateQuestionData } from '../lib/schemas';
+import { ApiError } from '../middleware/errorHandler';
 import { z } from 'zod';
 import type { AuthedRequest } from '../middleware/authJwt';
 
@@ -36,19 +37,42 @@ adminRouter.post('/topics', validateBody(TopicSchema), (req, res) => {
   res.status(201).json({ id: r.lastInsertRowid });
 });
 
-adminRouter.put('/topics/:id', validateBody(TopicSchema), (req, res) => {
-  db.prepare('UPDATE topics SET name=?, grade=?, description=? WHERE id=?').run(
-    req.body.name,
-    req.body.grade,
-    req.body.description || null,
-    Number(req.params.id)
-  );
-  res.json({ ok: true });
+adminRouter.put('/topics/:id', validateBody(TopicSchema), (req, res, next) => {
+  try {
+    const result = db.prepare('UPDATE topics SET name=?, grade=?, description=? WHERE id=?').run(
+      req.body.name,
+      req.body.grade,
+      req.body.description || null,
+      Number(req.params.id)
+    );
+    if (result.changes === 0) {
+      throw new ApiError(404, 'NOT_FOUND');
+    }
+    res.json({ ok: true });
+  } catch (e) {
+    next(e);
+  }
 });
 
-adminRouter.delete('/topics/:id', (req, res) => {
-  db.prepare('DELETE FROM topics WHERE id=?').run(Number(req.params.id));
-  res.json({ ok: true });
+adminRouter.delete('/topics/:id', (req, res, next) => {
+  try {
+    const result = db.prepare('DELETE FROM topics WHERE id=?').run(Number(req.params.id));
+    if (result.changes === 0) {
+      throw new ApiError(404, 'NOT_FOUND');
+    }
+    res.json({ ok: true });
+  } catch (e: any) {
+    if (
+      e?.code === 'SQLITE_CONSTRAINT' ||
+      e?.code === 'SQLITE_CONSTRAINT_FOREIGNKEY' ||
+      (typeof e?.code === 'string' && e.code.startsWith('SQLITE_CONSTRAINT')) ||
+      (e instanceof Error && e.message.includes('FOREIGN KEY'))
+    ) {
+      res.status(409).json({ error: 'TOPIC_IN_USE' });
+      return;
+    }
+    next(e);
+  }
 });
 
 // Questions CRUD
@@ -82,7 +106,7 @@ adminRouter.post('/questions', validateBody(QuestionSchema), (req: AuthedRequest
 adminRouter.put('/questions/:id', validateBody(QuestionSchema), (req: AuthedRequest, res, next) => {
   try {
     validateQuestionData(req.body.type, req.body.data);
-    db.prepare(
+    const result = db.prepare(
       'UPDATE questions SET topic_id=?, type=?, prompt=?, data=?, difficulty=?, points=? WHERE id=?'
     ).run(
       req.body.topicId,
@@ -93,13 +117,23 @@ adminRouter.put('/questions/:id', validateBody(QuestionSchema), (req: AuthedRequ
       req.body.points,
       Number(req.params.id)
     );
+    if (result.changes === 0) {
+      throw new ApiError(404, 'NOT_FOUND');
+    }
     res.json({ ok: true });
   } catch (e) {
     next(e);
   }
 });
 
-adminRouter.delete('/questions/:id', (req, res) => {
-  db.prepare('DELETE FROM questions WHERE id=?').run(Number(req.params.id));
-  res.json({ ok: true });
+adminRouter.delete('/questions/:id', (req, res, next) => {
+  try {
+    const result = db.prepare('DELETE FROM questions WHERE id=?').run(Number(req.params.id));
+    if (result.changes === 0) {
+      throw new ApiError(404, 'NOT_FOUND');
+    }
+    res.json({ ok: true });
+  } catch (e) {
+    next(e);
+  }
 });

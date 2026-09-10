@@ -31,6 +31,16 @@ describe('gradeQuestion (binary scoring)', () => {
     const q = mkQuestion('matching', { pairs: [{ left: 'a', right: '1' }, { left: 'b', right: '2' }] });
     expect(gradeQuestion(q, { a: '1', b: '9' })).toEqual({ isCorrect: false, pointsEarned: 0 });
   });
+  it('matching rejects extra keys even if expected pairs match', () => {
+    const q = mkQuestion('matching', { pairs: [{ left: 'a', right: '1' }, { left: 'b', right: '2' }] });
+    expect(gradeQuestion(q, { a: '1', b: '2', extra: '99' })).toEqual({ isCorrect: false, pointsEarned: 0 });
+  });
+  it('returns false and 0 points if studentAnswer is not an object or null', () => {
+    const q = mkQuestion('pg', { options: ['a', 'b'], correctIndex: 0 });
+    expect(gradeQuestion(q, null as any)).toEqual({ isCorrect: false, pointsEarned: 0 });
+    expect(gradeQuestion(q, undefined as any)).toEqual({ isCorrect: false, pointsEarned: 0 });
+    expect(gradeQuestion(q, 'string' as any)).toEqual({ isCorrect: false, pointsEarned: 0 });
+  });
   it('ordering correct', () => {
     const q = mkQuestion('ordering', { correctOrder: ['a', 'b', 'c'] });
     expect(gradeQuestion(q, { order: ['a', 'b', 'c'] })).toEqual({ isCorrect: true, pointsEarned: 10 });

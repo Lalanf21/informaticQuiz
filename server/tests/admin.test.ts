@@ -133,6 +133,35 @@ describe('CRUD topics', () => {
     const deleted = db.prepare('SELECT * FROM topics WHERE id = ?').get(topicId);
     expect(deleted).toBeUndefined();
   });
+
+  it('returns 404 when updating non-existent topic', async () => {
+    const res = await request(app)
+      .put('/api/admin/topics/99999')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Ghost Topic', grade: 7 });
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('NOT_FOUND');
+  });
+
+  it('returns 404 when deleting non-existent topic', async () => {
+    const res = await request(app)
+      .delete('/api/admin/topics/99999')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('NOT_FOUND');
+  });
+
+  it('returns 409 TOPIC_IN_USE when deleting a topic referenced by active sessions or scores', async () => {
+    db.prepare(
+      'INSERT INTO quiz_sessions (id, student_name, grade, mode, topic_id) VALUES (?,?,?,?,?)'
+    ).run('session-active', 'Budi', 7, 'topic', topicId);
+
+    const res = await request(app)
+      .delete(`/api/admin/topics/${topicId}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(409);
+    expect(res.body.error).toBe('TOPIC_IN_USE');
+  });
 });
 
 describe('CRUD questions', () => {
@@ -242,6 +271,28 @@ describe('CRUD questions', () => {
 
     const deleted = db.prepare('SELECT * FROM questions WHERE id = ?').get(questionId);
     expect(deleted).toBeUndefined();
+  });
+
+  it('returns 404 when updating non-existent question', async () => {
+    const res = await request(app)
+      .put('/api/admin/questions/99999')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        topicId,
+        type: 'tf',
+        prompt: 'Ghost question',
+        data: { correctAnswer: true },
+      });
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('NOT_FOUND');
+  });
+
+  it('returns 404 when deleting non-existent question', async () => {
+    const res = await request(app)
+      .delete('/api/admin/questions/99999')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('NOT_FOUND');
   });
 });
 

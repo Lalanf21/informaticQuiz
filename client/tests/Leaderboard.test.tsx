@@ -75,6 +75,7 @@ describe('Leaderboard page', () => {
     await waitFor(() => {
       expect(api.get).toHaveBeenCalledWith('/api/scores/leaderboard', {
         params: {},
+        signal: expect.any(AbortSignal),
       });
     });
   });
@@ -101,7 +102,10 @@ describe('Leaderboard page', () => {
     renderLeaderboard();
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/scores/leaderboard', { params: {} });
+      expect(api.get).toHaveBeenCalledWith('/api/scores/leaderboard', {
+        params: {},
+        signal: expect.any(AbortSignal),
+      });
     });
 
     fireEvent.change(screen.getByLabelText('Filter mode'), {
@@ -111,6 +115,7 @@ describe('Leaderboard page', () => {
     await waitFor(() => {
       expect(api.get).toHaveBeenCalledWith('/api/scores/leaderboard', {
         params: { mode: 'challenge' },
+        signal: expect.any(AbortSignal),
       });
     });
   });
@@ -120,7 +125,10 @@ describe('Leaderboard page', () => {
     renderLeaderboard();
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/scores/leaderboard', { params: {} });
+      expect(api.get).toHaveBeenCalledWith('/api/scores/leaderboard', {
+        params: {},
+        signal: expect.any(AbortSignal),
+      });
     });
 
     fireEvent.change(screen.getByLabelText('Filter kelas'), {
@@ -130,6 +138,7 @@ describe('Leaderboard page', () => {
     await waitFor(() => {
       expect(api.get).toHaveBeenCalledWith('/api/scores/leaderboard', {
         params: { grade: '8' },
+        signal: expect.any(AbortSignal),
       });
     });
   });
@@ -139,7 +148,10 @@ describe('Leaderboard page', () => {
     renderLeaderboard();
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/scores/leaderboard', { params: {} });
+      expect(api.get).toHaveBeenCalledWith('/api/scores/leaderboard', {
+        params: {},
+        signal: expect.any(AbortSignal),
+      });
     });
 
     fireEvent.change(screen.getByLabelText('Filter mode'), {
@@ -152,8 +164,24 @@ describe('Leaderboard page', () => {
     await waitFor(() => {
       expect(api.get).toHaveBeenCalledWith('/api/scores/leaderboard', {
         params: { mode: 'campaign', grade: '9' },
+        signal: expect.any(AbortSignal),
       });
     });
+  });
+
+  it('aborts previous request when filters change rapidly or on unmount', async () => {
+    let capturedSignal: AbortSignal | undefined;
+    vi.mocked(api.get).mockImplementation((_url, config: any) => {
+      capturedSignal = config?.signal;
+      return new Promise(() => {}); // never resolves
+    });
+
+    const { unmount } = renderLeaderboard();
+    expect(capturedSignal).toBeDefined();
+    expect(capturedSignal?.aborted).toBe(false);
+
+    unmount();
+    expect(capturedSignal?.aborted).toBe(true);
   });
 
   it('shows empty message when no scores found', async () => {

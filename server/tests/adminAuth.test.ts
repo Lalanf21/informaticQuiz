@@ -27,9 +27,14 @@ describe('POST /api/admin/register', () => {
   it('registers a teacher with correct key', async () => {
     const res = await request(app)
       .post('/api/admin/register')
-      .send({ username: 'guru1', password: 'pass123', registrationKey: 'test-key' });
+      .send({ username: 'guru1', password: 'pass123', name: 'Pak Guru', registrationKey: 'test-key' });
     expect(res.status).toBe(201);
     expect(res.body.token).toBeTruthy();
+    expect(res.body.teacher).toMatchObject({
+      username: 'guru1',
+      name: 'Pak Guru',
+    });
+    expect(res.body.teacher.id).toBeTypeOf('number');
   });
 
   it('rejects wrong registration key', async () => {
@@ -38,6 +43,20 @@ describe('POST /api/admin/register', () => {
       .send({ username: 'guru1', password: 'pass123', registrationKey: 'wrong' });
     expect(res.status).toBe(403);
     expect(res.body.error).toBe('INVALID_REGISTRATION_KEY');
+  });
+
+  it('rejects registration when REGISTRATION_KEY is not configured', async () => {
+    const saved = process.env.REGISTRATION_KEY;
+    delete process.env.REGISTRATION_KEY;
+    try {
+      const res = await request(app)
+        .post('/api/admin/register')
+        .send({ username: 'guru1', password: 'pass123', registrationKey: 'test-key' });
+      expect(res.status).toBe(403);
+      expect(res.body.error).toBe('INVALID_REGISTRATION_KEY');
+    } finally {
+      process.env.REGISTRATION_KEY = saved;
+    }
   });
 
   it('rejects duplicate username', async () => {

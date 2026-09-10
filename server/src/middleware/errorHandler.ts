@@ -8,6 +8,9 @@ export class ApiError extends Error {
 }
 
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+  if (res.headersSent) {
+    return _next(err);
+  }
   if (err instanceof ZodError) {
     res.status(400).json({ error: 'VALIDATION_ERROR', details: err.issues });
     return;

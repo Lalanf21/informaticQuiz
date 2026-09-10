@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import { db } from '../db/db';
 import { signJwt } from '../lib/auth';
 import { validateBody } from '../middleware/validateBody';
@@ -10,6 +11,12 @@ import { z } from 'zod';
 export const adminAuthRouter = Router();
 
 const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  skip: () => process.env.NODE_ENV === 'test',
+});
+
+const registerLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
   skip: () => process.env.NODE_ENV === 'test',
@@ -27,9 +34,15 @@ const LoginSchema = z.object({
   password: z.string(),
 });
 
-adminAuthRouter.post('/register', validateBody(RegisterSchema), async (req, res, next) => {
+adminAuthRouter.post('/register', registerLimiter, validateBody(RegisterSchema), async (req, res, next) => {
   try {
-    if (req.body.registrationKey !== process.env.REGISTRATION_KEY) {
+    const expectedKey = process.env.REGISTRATION_KEY;
+    if (!expectedKey) {
+      throw new ApiError(403, 'INVALID_REGISTRATION_KEY');
+    }
+    const keyBuf = Buffer.from(req.body.registrationKey);
+    const expectedBuf = Buffer.from(expectedKey);
+    if (keyBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(keyBuf, expectedBuf)) {
       throw new ApiError(403, 'INVALID_REGISTRATION_KEY');
     }
     const hash = await bcrypt.hash(req.body.password, 10);
@@ -38,8 +51,16 @@ adminAuthRouter.post('/register', validateBody(RegisterSchema), async (req, res,
       hash,
       req.body.name || null
     );
-    const token = signJwt({ id: Number(result.lastInsertRowid), username: req.body.username });
-    res.status(201).json({ token });
+    const teacherId = Number(result.lastInsertRowid);
+    const token = signJwt({ id: teacherId, username: req.body.username });
+    res.status(201).json({
+      token,
+      teacher: {
+        id: teacherId,
+        username: req.body.username,
+        name: req.body.name || null,
+      },
+    });
   } catch (e) {
     if (e instanceof Error && e.message.includes('UNIQUE')) {
       next(new ApiError(409, 'USERNAME_TAKEN'));

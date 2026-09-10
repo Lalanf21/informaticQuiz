@@ -6,6 +6,9 @@ export interface GradeResult {
 }
 
 export function gradeQuestion(question: Question, studentAnswer: Record<string, unknown>): GradeResult {
+  if (!studentAnswer || typeof studentAnswer !== 'object') {
+    return { isCorrect: false, pointsEarned: 0 };
+  }
   const data = question.data as any;
   let isCorrect = false;
   switch (question.type) {
@@ -16,12 +19,15 @@ export function gradeQuestion(question: Question, studentAnswer: Record<string, 
       isCorrect = studentAnswer.value === data.correctAnswer;
       break;
     case 'matching':
-      isCorrect = Array.isArray(data.pairs) &&
+      isCorrect =
+        Array.isArray(data.pairs) &&
+        Object.keys(studentAnswer).length === data.pairs.length &&
         data.pairs.every((p: { left: string; right: string }) => studentAnswer[p.left] === p.right);
       break;
     case 'ordering': {
       const order = studentAnswer.order;
-      isCorrect = Array.isArray(order) &&
+      isCorrect =
+        Array.isArray(order) &&
         Array.isArray(data.correctOrder) &&
         order.length === data.correctOrder.length &&
         data.correctOrder.every((step: string, i: number) => order[i] === step);

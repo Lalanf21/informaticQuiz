@@ -3,20 +3,42 @@ import { useState, useEffect, useRef } from 'react';
 interface Props {
   seconds: number;
   onExpire: () => void;
+  startedAt?: number;
 }
 
-export default function Timer({ seconds, onExpire }: Props) {
-  const [remaining, setRemaining] = useState(seconds);
+export default function Timer({ seconds, onExpire, startedAt }: Props) {
+  const startRef = useRef<number>(startedAt ?? Date.now());
   const onExpireRef = useRef(onExpire);
   onExpireRef.current = onExpire;
   const hasExpiredRef = useRef(false);
 
-  useEffect(() => {
-    setRemaining(seconds);
-    hasExpiredRef.current = false;
-  }, [seconds]);
+  const getRemaining = (start: number) => {
+    const elapsed = Math.floor((Date.now() - start) / 1000);
+    return Math.max(0, seconds - elapsed);
+  };
+
+  const [remaining, setRemaining] = useState<number>(() => getRemaining(startRef.current));
 
   useEffect(() => {
+    const newStart = startedAt ?? Date.now();
+    startRef.current = newStart;
+    const rem = getRemaining(newStart);
+    setRemaining(rem);
+    hasExpiredRef.current = false;
+  }, [seconds, startedAt]);
+
+  useEffect(() => {
+    const checkExpiry = () => {
+      const rem = getRemaining(startRef.current);
+      setRemaining(rem);
+      if (rem <= 0) {
+        if (!hasExpiredRef.current) {
+          hasExpiredRef.current = true;
+          onExpireRef.current();
+        }
+      }
+    };
+
     if (remaining <= 0) {
       if (!hasExpiredRef.current) {
         hasExpiredRef.current = true;
@@ -24,9 +46,25 @@ export default function Timer({ seconds, onExpire }: Props) {
       }
       return;
     }
-    const t = setInterval(() => setRemaining((r) => r - 1), 1000);
-    return () => clearInterval(t);
-  }, [remaining]);
+
+    const t = setInterval(checkExpiry, 1000);
+    const handleVisibility = () => {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        checkExpiry();
+      }
+    };
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', handleVisibility);
+    }
+
+    return () => {
+      clearInterval(t);
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', handleVisibility);
+      }
+    };
+  }, [remaining, seconds, startedAt]);
 
   const mins = Math.floor(remaining / 60);
   const secs = remaining % 60;

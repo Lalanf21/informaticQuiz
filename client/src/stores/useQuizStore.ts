@@ -23,7 +23,30 @@ export const useQuizStore = create<QuizState>()(
       answers: {},
       startedAt: null,
       mode: null,
-      setQuestions: (q, mode) => set({ questions: q, currentIndex: 0, answers: {}, startedAt: Date.now(), mode }),
+      setQuestions: (q, mode) =>
+        set((s) => {
+          const isSameQuestions =
+            s.questions.length > 0 &&
+            s.questions.length === q.length &&
+            s.questions.every((sq, idx) => sq.id === q[idx].id);
+
+          if (isSameQuestions) {
+            return {
+              questions: q,
+              mode,
+              answers: s.answers,
+              startedAt: s.startedAt ?? Date.now(),
+              currentIndex: Math.min(s.currentIndex, Math.max(0, q.length - 1)),
+            };
+          }
+          return {
+            questions: q,
+            currentIndex: 0,
+            answers: {},
+            startedAt: Date.now(),
+            mode,
+          };
+        }),
       setAnswer: (questionId, answer) => set((s) => ({ answers: { ...s.answers, [questionId]: answer } })),
       next: () =>
         set((s) => ({

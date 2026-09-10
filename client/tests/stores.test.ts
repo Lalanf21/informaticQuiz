@@ -86,6 +86,38 @@ describe('useQuizStore', () => {
     expect(state.startedAt).toBeLessThanOrEqual(afterTime);
   });
 
+  it('preserves answers and startedAt when setQuestions is called with same question IDs (page refresh resilience)', () => {
+    useQuizStore.getState().setQuestions(sampleQuestions, 'topic');
+    const originalStartedAt = useQuizStore.getState().startedAt;
+    useQuizStore.getState().setAnswer(1, { selected: 'B' });
+    useQuizStore.getState().next(); // currentIndex = 1
+
+    // Simulate page refresh re-fetching the same questions
+    const reFetchedQuestions = [...sampleQuestions];
+    useQuizStore.getState().setQuestions(reFetchedQuestions, 'topic');
+
+    const state = useQuizStore.getState();
+    expect(state.answers[1]).toEqual({ selected: 'B' });
+    expect(state.startedAt).toBe(originalStartedAt);
+    expect(state.currentIndex).toBe(1);
+  });
+
+  it('resets answers and startedAt when setQuestions is called with different question IDs', () => {
+    useQuizStore.getState().setQuestions(sampleQuestions, 'topic');
+    useQuizStore.getState().setAnswer(1, { selected: 'B' });
+
+    const differentQuestions: ClientQuestion[] = [
+      { id: 99, type: 'pg', prompt: 'New Q', payload: {}, points: 10 },
+    ];
+    useQuizStore.getState().setQuestions(differentQuestions, 'challenge');
+
+    const state = useQuizStore.getState();
+    expect(state.questions).toEqual(differentQuestions);
+    expect(state.answers).toEqual({});
+    expect(state.currentIndex).toBe(0);
+    expect(state.mode).toBe('challenge');
+  });
+
   it('records answers for questions via setAnswer', () => {
     useQuizStore.getState().setQuestions(sampleQuestions, 'challenge');
 

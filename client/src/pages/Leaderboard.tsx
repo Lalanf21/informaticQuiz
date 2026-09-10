@@ -18,15 +18,26 @@ export default function Leaderboard() {
     setLoading(true);
     setError(null);
 
+    const controller = new AbortController();
+
     api
-      .get('/api/scores/leaderboard', { params })
+      .get('/api/scores/leaderboard', { params, signal: controller.signal })
       .then((r) => setScores(r.data))
       .catch((err) => {
+        if (err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED' || controller.signal.aborted) {
+          return;
+        }
         setError(err?.response?.data?.error || 'Gagal memuat leaderboard');
       })
       .finally(() => {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       });
+
+    return () => {
+      controller.abort();
+    };
   }, [mode, grade]);
 
   return (

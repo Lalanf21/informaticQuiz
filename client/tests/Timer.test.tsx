@@ -140,4 +140,40 @@ describe('Timer component', () => {
     });
     expect(onExpire).not.toHaveBeenCalled();
   });
+
+  it('calculates remaining time anchored to wall-clock startedAt prop', () => {
+    const now = Date.now();
+    const startedAt = now - 35000; // 35 seconds ago
+    render(<Timer seconds={60} onExpire={vi.fn()} startedAt={startedAt} />);
+
+    const timer = screen.getByRole('timer');
+    expect(timer).toHaveTextContent('0:25');
+  });
+
+  it('resilient to background tab throttle when visibilitychange fires', () => {
+    const onExpire = vi.fn();
+    render(<Timer seconds={60} onExpire={onExpire} />);
+
+    const timer = screen.getByRole('timer');
+    expect(timer).toHaveTextContent('1:00');
+
+    // Simulate tab being in background where setInterval was paused/delayed,
+    // but wall clock advanced 40 seconds
+    act(() => {
+      vi.advanceTimersByTime(40000);
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+
+    expect(timer).toHaveTextContent('0:20');
+    expect(onExpire).not.toHaveBeenCalled();
+
+    // Advance past expiration
+    act(() => {
+      vi.advanceTimersByTime(25000);
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+
+    expect(timer).toHaveTextContent('0:00');
+    expect(onExpire).toHaveBeenCalledTimes(1);
+  });
 });

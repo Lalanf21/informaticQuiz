@@ -16,7 +16,7 @@ export default function AdminRegister() {
     e.preventDefault();
     try {
       const res = await api.post('/api/admin/register', { username, password, name, registrationKey: regKey });
-      setAuth(res.data.token, { id: 0, username, name });
+      setAuth(res.data.token, res.data.teacher);
       navigate('/admin/questions');
     } catch (err: any) {
       setError(err.response?.status === 403 ? 'Kode registrasi salah' : 'Gagal daftar');

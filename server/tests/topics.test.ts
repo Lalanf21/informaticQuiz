@@ -49,6 +49,20 @@ describe('GET /api/topics', () => {
     expect(res.body).toEqual([]);
   });
 
+  it('returns 400 INVALID_GRADE when grade query param is invalid', async () => {
+    const resUnder = await request(app).get('/api/topics?grade=6');
+    expect(resUnder.status).toBe(400);
+    expect(resUnder.body).toEqual({ error: 'INVALID_GRADE' });
+
+    const resOver = await request(app).get('/api/topics?grade=10');
+    expect(resOver.status).toBe(400);
+    expect(resOver.body).toEqual({ error: 'INVALID_GRADE' });
+
+    const resNaN = await request(app).get('/api/topics?grade=invalid');
+    expect(resNaN.status).toBe(400);
+    expect(resNaN.body).toEqual({ error: 'INVALID_GRADE' });
+  });
+
   it('includes security and CORS headers from middleware bootstrap', async () => {
     const res = await request(app).get('/api/topics').set('Origin', 'http://localhost:5173');
     expect(res.status).toBe(200);

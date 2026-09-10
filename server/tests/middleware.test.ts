@@ -107,6 +107,15 @@ describe('middleware', () => {
       expect(resForbidden.body).toEqual({ error: 'FORBIDDEN' });
     });
 
+    it('delegates to next(err) if res.headersSent is true', () => {
+      const nextFn = vi.fn();
+      const fakeRes = { headersSent: true, status: vi.fn(), json: vi.fn() } as any;
+      const testErr = new Error('After headers');
+      errorHandler(testErr, {} as any, fakeRes, nextFn);
+      expect(nextFn).toHaveBeenCalledWith(testErr);
+      expect(fakeRes.status).not.toHaveBeenCalled();
+    });
+
     it('catches unhandled errors and returns 500 INTERNAL_ERROR', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const res = await request(app).get('/unhandled-error');

@@ -132,6 +132,11 @@ describe('Admin Authentication', () => {
       vi.mocked(api.post).mockResolvedValueOnce({
         data: {
           token: 'mock-registered-token',
+          teacher: {
+            id: 1,
+            username: 'newguru',
+            name: 'Bu Sari',
+          },
         },
       });
 
@@ -158,7 +163,7 @@ describe('Admin Authentication', () => {
 
       expect(useAdminStore.getState().token).toBe('mock-registered-token');
       expect(useAdminStore.getState().teacher).toEqual({
-        id: 0,
+        id: 1,
         username: 'newguru',
         name: 'Bu Sari',
       });
