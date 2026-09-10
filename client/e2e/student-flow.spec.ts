@@ -11,9 +11,24 @@ test('student can complete a topic quiz', async ({ page }) => {
 
   // wait for quiz to load
   await expect(page.locator('text=Sebelumnya')).toBeVisible();
-  while (await page.locator('text=Berikutnya').isVisible()) {
-    await page.click('text=Berikutnya');
+
+  const nextBtn = page.locator('text=Berikutnya');
+  const questionCard = page.locator('.bg-white.p-6');
+
+  let maxSteps = 20;
+  while ((await nextBtn.isVisible()) && maxSteps-- > 0) {
+    const answerOption = questionCard.locator('button, input[type="radio"]').first();
+    if (await answerOption.isVisible()) {
+      await answerOption.click();
+    }
+    await nextBtn.click();
   }
+
+  const lastAnswerOption = questionCard.locator('button, input[type="radio"]').first();
+  if (await lastAnswerOption.isVisible()) {
+    await lastAnswerOption.click();
+  }
+
   await page.click('text=Selesai & Submit');
   await expect(page).toHaveURL(/\/result\//);
   await expect(page.locator('text=Hasil Kuis')).toBeVisible();

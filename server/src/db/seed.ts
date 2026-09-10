@@ -4,8 +4,17 @@ import { migrate } from './migrate';
 
 migrate();
 
+db.exec(`
+  DELETE FROM session_answers;
+  DELETE FROM session_questions;
+  DELETE FROM scores;
+  DELETE FROM quiz_sessions;
+  DELETE FROM questions;
+  DELETE FROM topics;
+  DELETE FROM teachers;
+`);
+
 const teacherHash = bcrypt.hashSync('guru123', 10);
-db.prepare('DELETE FROM teachers;').run();
 db.prepare('INSERT INTO teachers (username, password_hash, name) VALUES (?,?,?)').run('guru', teacherHash, 'Guru Demo');
 
 const topics = [
@@ -13,7 +22,6 @@ const topics = [
   { name: 'Jaringan Komputer & Internet', grade: 8 },
   { name: 'Kewirausahaan Digital', grade: 9 },
 ];
-db.prepare('DELETE FROM topics;').run();
 for (const t of topics) {
   db.prepare('INSERT INTO topics (name, grade) VALUES (?,?)').run(t.name, t.grade);
 }
@@ -32,7 +40,6 @@ const questions = [
   { topicId: topicIds[2].id, type: 'pg', prompt: 'Apa kepanjangan UMKM?', data: { options: ['Usaha Mikro Kecil Menengah', 'Usaha Modal Kecil Menengah', 'Usaha Masyarakat Kecil Mandiri', 'Unit Makmur Karya Mandiri'], correctIndex: 0 }, difficulty: 'easy', points: 10 },
 ];
 
-db.prepare('DELETE FROM questions;').run();
 for (const q of questions) {
   db.prepare('INSERT INTO questions (topic_id, type, prompt, data, difficulty, points) VALUES (?,?,?,?,?,?)').run(q.topicId, q.type, q.prompt, JSON.stringify(q.data), q.difficulty, q.points);
 }
