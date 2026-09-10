@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { useQuizStore } from '../stores/useQuizStore';
-import { usePlayerStore } from '../stores/usePlayerStore';
 import QuestionRenderer from '../components/QuestionRenderer';
 import ProgressBar from '../components/ProgressBar';
 import type { ClientQuestion } from '../types';
@@ -10,11 +9,11 @@ import type { ClientQuestion } from '../types';
 export default function QuizPlay() {
   const { sessionId } = useParams();
   const navigate = useNavigate();
-  const player = usePlayerStore();
   const { questions, currentIndex, answers, setQuestions, setAnswer, next, prev } = useQuizStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -42,6 +41,7 @@ export default function QuizPlay() {
   const submit = async () => {
     if (submitting) return;
     setSubmitting(true);
+    setSubmitError(null);
     try {
       const answerArr = questions.map((qq) => ({ questionId: qq.id, answer: answers[qq.id] || {} }));
       await api.post(`/api/sessions/${sessionId}/submit`, { answers: answerArr });
@@ -49,6 +49,7 @@ export default function QuizPlay() {
       navigate(`/result/${sessionId}`);
     } catch (err) {
       console.error('Failed to submit quiz:', err);
+      setSubmitError('Gagal mengirim jawaban. Silakan coba lagi.');
       setSubmitting(false);
     }
   };
@@ -61,10 +62,15 @@ export default function QuizPlay() {
           <h2 className="text-xl font-semibold mb-4">{q.prompt}</h2>
           <QuestionRenderer question={q} initialAnswer={answers[q.id]} onAnswer={(a) => setAnswer(q.id, a)} />
         </div>
+        {submitError && (
+          <div role="alert" className="mt-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm">
+            {submitError}
+          </div>
+        )}
         <div className="flex justify-between mt-4">
           <button
             disabled={currentIndex === 0}
-            onClick={() => prev()}
+            onClick={prev}
             className="px-6 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
           >
             Sebelumnya
@@ -79,7 +85,7 @@ export default function QuizPlay() {
             </button>
           ) : (
             <button
-              onClick={() => next()}
+              onClick={next}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg"
             >
               Berikutnya

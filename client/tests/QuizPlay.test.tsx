@@ -232,6 +232,27 @@ describe('QuizPlay page', () => {
     });
   });
 
+  it('displays error banner and re-enables submit button if submission fails', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(api.post).mockRejectedValueOnce(new Error('Network failure'));
+
+    renderQuizPlay();
+
+    expect(await screen.findByText('Apa kepanjangan dari CPU?')).toBeInTheDocument();
+    // Navigate to last question
+    fireEvent.click(screen.getByRole('button', { name: 'Berikutnya' }));
+    await screen.findByText('RAM adalah memori non-volatile.');
+    fireEvent.click(screen.getByRole('button', { name: 'Berikutnya' }));
+    await screen.findByText('Urutkan dari yang terkecil:');
+
+    const submitBtn = screen.getByRole('button', { name: 'Selesai & Submit' });
+    fireEvent.click(submitBtn);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Gagal mengirim jawaban. Silakan coba lagi.');
+    expect(submitBtn).not.toBeDisabled();
+    expect(mockedNavigate).not.toHaveBeenCalled();
+  });
+
   it('renders QuizPlay through App router at path "/quiz/:sessionId"', async () => {
     render(
       <MemoryRouter initialEntries={['/quiz/session-999']}>
