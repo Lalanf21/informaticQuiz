@@ -162,4 +162,78 @@ describe('Result page', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Kembali ke Topik' }));
     expect(mockedNavigate).toHaveBeenCalledWith('/topics');
   });
+
+  it('unlocks next level in localStorage when campaign mode score is >= 70%', async () => {
+    localStorage.clear();
+    const campaignResultData = {
+      score: {
+        mode: 'campaign',
+        percentage: 75,
+        total_points: 75,
+        max_points: 100,
+      },
+      answers: [],
+      level: 1,
+      topicId: 2,
+    };
+    vi.mocked(api.get).mockResolvedValue({ data: campaignResultData });
+    renderResult('sess-camp-pass');
+
+    await waitFor(() => {
+      const raw = localStorage.getItem('campaign-progress');
+      expect(raw).toBeTruthy();
+      expect(JSON.parse(raw!)).toEqual({ '2': 2 });
+      expect(screen.getByText(/Selamat! Kamu berhasil membuka level berikutnya!/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Mode Campaign' })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mode Campaign' }));
+    expect(mockedNavigate).toHaveBeenCalledWith('/campaign');
+  });
+
+  it('does not unlock next level when campaign mode score is < 70%', async () => {
+    localStorage.clear();
+    const campaignFailedData = {
+      score: {
+        mode: 'campaign',
+        percentage: 60,
+        total_points: 60,
+        max_points: 100,
+      },
+      answers: [],
+      level: 1,
+      topicId: 2,
+    };
+    vi.mocked(api.get).mockResolvedValue({ data: campaignFailedData });
+    renderResult('sess-camp-fail');
+
+    await waitFor(() => {
+      expect(screen.getByText('60%')).toBeInTheDocument();
+    });
+
+    expect(localStorage.getItem('campaign-progress')).toBeNull();
+  });
+
+  it('does not touch campaign progress when mode is not campaign', async () => {
+    localStorage.clear();
+    const topicResultData = {
+      score: {
+        mode: 'topic',
+        percentage: 90,
+        total_points: 90,
+        max_points: 100,
+      },
+      answers: [],
+      level: 1,
+      topicId: 2,
+    };
+    vi.mocked(api.get).mockResolvedValue({ data: topicResultData });
+    renderResult('sess-topic-pass');
+
+    await waitFor(() => {
+      expect(screen.getByText('90%')).toBeInTheDocument();
+    });
+
+    expect(localStorage.getItem('campaign-progress')).toBeNull();
+  });
 });

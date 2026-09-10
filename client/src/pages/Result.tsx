@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
+import { setProgress } from './Campaign';
 
 export interface SessionResultAnswer {
   id: number;
@@ -13,11 +14,15 @@ export interface SessionResultScore {
   percentage: number;
   total_points: number;
   max_points: number;
+  mode?: string;
+  topic_id?: number | null;
 }
 
 export interface SessionResultData {
   score: SessionResultScore;
   answers: SessionResultAnswer[];
+  level?: number | null;
+  topicId?: number | null;
 }
 
 export default function Result() {
@@ -29,7 +34,21 @@ export default function Result() {
   useEffect(() => {
     api
       .get(`/api/sessions/${sessionId}/result`)
-      .then((r) => setData(r.data))
+      .then((r) => {
+        const resData: SessionResultData = r.data;
+        setData(resData);
+
+        if (
+          resData?.score?.mode === 'campaign' &&
+          resData.score.percentage >= 70 &&
+          resData.level
+        ) {
+          const topicId = resData.topicId ?? resData.score.topic_id;
+          if (topicId) {
+            setProgress(topicId, resData.level);
+          }
+        }
+      })
       .catch((err) => {
         setError(err.response?.data?.error || 'Gagal memuat hasil kuis.');
       });
@@ -61,6 +80,11 @@ export default function Result() {
           <p className="text-5xl font-bold text-blue-600">{s.percentage}%</p>
           <p className="text-gray-600 mt-2">Skor: {s.total_points} / {s.max_points}</p>
         </div>
+        {s.mode === 'campaign' && s.percentage >= 70 && (
+          <div className="mb-6 p-3 bg-green-100 text-green-800 rounded-lg text-center font-medium">
+            Selamat! Kamu berhasil membuka level berikutnya!
+          </div>
+        )}
         <div className="space-y-2 mb-6">
           {data.answers.map((a) => (
             <div key={a.id} className={`p-3 rounded-lg ${a.is_correct ? 'bg-green-50' : 'bg-red-50'}`}>
@@ -69,7 +93,15 @@ export default function Result() {
             </div>
           ))}
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
+          {s.mode === 'campaign' && (
+            <button
+              onClick={() => navigate('/campaign')}
+              className="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-medium"
+            >
+              Mode Campaign
+            </button>
+          )}
           <button onClick={() => navigate('/topics')} className="flex-1 py-3 bg-blue-600 text-white rounded-lg">Kuis Lagi</button>
           <button onClick={() => navigate('/leaderboard')} className="flex-1 py-3 bg-gray-700 text-white rounded-lg">Leaderboard</button>
         </div>
