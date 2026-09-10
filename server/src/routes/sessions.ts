@@ -18,6 +18,17 @@ interface QuizSessionRow {
   finished_at: string | null;
 }
 
+function shuffle<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+  }
+  return arr;
+}
+
 /** Strip kunci from a Question to produce ClientQuestion payload. */
 function stripKunci(q: { type: string; data: unknown }): Record<string, unknown> {
   const d = (typeof q.data === 'string' ? JSON.parse(q.data) : q.data) as any;
@@ -27,20 +38,13 @@ function stripKunci(q: { type: string; data: unknown }): Record<string, unknown>
     case 'tf':
       return {};
     case 'matching': {
-      // shuffle right column
-      const rights = Array.isArray(d.pairs)
-        ? [...d.pairs].map((p: any) => p.right).sort(() => Math.random() - 0.5)
-        : [];
-      const pairs = Array.isArray(d.pairs)
-        ? d.pairs.map((p: any) => p.left)
-        : [];
+      const rights = shuffle(Array.isArray(d.pairs) ? d.pairs.map((p: any) => p.right) : []);
+      const pairs = Array.isArray(d.pairs) ? d.pairs.map((p: any) => p.left) : [];
       return { pairs, rights };
     }
     case 'ordering': {
-      const shuffled = Array.isArray(d.correctOrder)
-        ? [...d.correctOrder].sort(() => Math.random() - 0.5)
-        : [];
-      return { items: shuffled };
+      const items = shuffle(Array.isArray(d.correctOrder) ? d.correctOrder : []);
+      return { items };
     }
     default:
       return {};
@@ -103,19 +107,23 @@ sessionsRouter.post('/:id/submit', (req, res, next) => {
     const rows = db.prepare('SELECT q.* FROM session_questions sq JOIN questions q ON sq.question_id = q.id WHERE sq.session_id = ?').all(req.params.id) as any[];
     rows.forEach(q => questionMap.set(q.id, { ...q, data: typeof q.data === 'string' ? JSON.parse(q.data) : q.data }));
 
-    let total = 0, max = 0;
+    let total = 0;
+    const max = rows.reduce((sum, q) => sum + (Number(q.points) || 0), 0);
     const breakdown: SessionAnswer[] = [];
+    const seenQuestions = new Set<number>();
     const insertAnswer = db.prepare('INSERT INTO session_answers (session_id, question_id, answer, is_correct, points_earned) VALUES (?,?,?,?,?)');
     const insertScore = db.prepare('INSERT INTO scores (session_id, student_name, grade, topic_id, mode, total_points, max_points, percentage) VALUES (?,?,?,?,?,?,?,?)');
     const finishSession = db.prepare("UPDATE quiz_sessions SET finished_at = datetime('now') WHERE id = ?");
 
     for (const a of answers) {
+      if (!a || typeof a.questionId !== 'number' || seenQuestions.has(a.questionId)) continue;
       const q = questionMap.get(a.questionId);
       if (!q) continue;
+      seenQuestions.add(a.questionId);
+
       const studentAnswer = a.answer || {};
       const result = gradeQuestion(q, studentAnswer);
       total += result.pointsEarned;
-      max += q.points;
       breakdown.push({ questionId: a.questionId, answer: studentAnswer, isCorrect: result.isCorrect, pointsEarned: result.pointsEarned });
     }
 

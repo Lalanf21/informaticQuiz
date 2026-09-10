@@ -18,6 +18,10 @@ beforeEach(() => {
     .run(3, 1, 'matching', 'Cocokkan protokol', '{"pairs":[{"left":"HTTP","right":"80"},{"left":"HTTPS","right":"443"}]}', 'hard', 10);
   db.prepare('INSERT INTO questions (id, topic_id, type, prompt, data, difficulty, points) VALUES (?,?,?,?,?,?,?)')
     .run(4, 1, 'ordering', 'Urutan boot', '{"correctOrder":["BIOS","POST","OS"]}', 'hard', 10);
+  db.prepare('INSERT INTO questions (id, topic_id, type, prompt, data, difficulty, points) VALUES (?,?,?,?,?,?,?)')
+    .run(5, 2, 'pg', 'IP?', '{"options":["v4","v6"],"correctIndex":0}', 'easy', 10);
+  db.prepare('INSERT INTO questions (id, topic_id, type, prompt, data, difficulty, points) VALUES (?,?,?,?,?,?,?)')
+    .run(6, 2, 'tf', 'UDP connectionless?', '{"correctAnswer":true}', 'medium', 10);
 });
 
 afterEach(() => {
@@ -108,13 +112,13 @@ describe('GET /api/sessions/:id/questions', () => {
 
 describe('POST /api/sessions/:id/submit', () => {
   it('scores a correct submission', async () => {
-    const created = await request(app).post('/api/sessions').send({ studentName: 'Andi', grade: 7, mode: 'topic', topicId: 1 });
+    const created = await request(app).post('/api/sessions').send({ studentName: 'Andi', grade: 8, mode: 'topic', topicId: 2 });
     const qs = await request(app).get(`/api/sessions/${created.body.sessionId}/questions`);
     const pg = qs.body.find((q: any) => q.type === 'pg');
     const tf = qs.body.find((q: any) => q.type === 'tf');
     const res = await request(app).post(`/api/sessions/${created.body.sessionId}/submit`).send({
       answers: [
-        { questionId: pg.id, answer: { index: 1 } },
+        { questionId: pg.id, answer: { index: 0 } },
         { questionId: tf.id, answer: { value: true } },
       ],
     });
@@ -127,13 +131,13 @@ describe('POST /api/sessions/:id/submit', () => {
   });
 
   it('handles partial correct answers and scoring', async () => {
-    const created = await request(app).post('/api/sessions').send({ studentName: 'Andi', grade: 7, mode: 'topic', topicId: 1 });
+    const created = await request(app).post('/api/sessions').send({ studentName: 'Andi', grade: 8, mode: 'topic', topicId: 2 });
     const qs = await request(app).get(`/api/sessions/${created.body.sessionId}/questions`);
     const pg = qs.body.find((q: any) => q.type === 'pg');
     const tf = qs.body.find((q: any) => q.type === 'tf');
     const res = await request(app).post(`/api/sessions/${created.body.sessionId}/submit`).send({
       answers: [
-        { questionId: pg.id, answer: { index: 1 } }, // correct
+        { questionId: pg.id, answer: { index: 0 } }, // correct
         { questionId: tf.id, answer: { value: false } }, // wrong
       ],
     });
@@ -141,6 +145,42 @@ describe('POST /api/sessions/:id/submit', () => {
     expect(res.body.totalPoints).toBe(10);
     expect(res.body.maxPoints).toBe(20);
     expect(res.body.percentage).toBe(50);
+  });
+
+  it('calculates maxPoints from full session on partial submission (skipping questions)', async () => {
+    const created = await request(app).post('/api/sessions').send({ studentName: 'Andi', grade: 8, mode: 'topic', topicId: 2 });
+    const qs = await request(app).get(`/api/sessions/${created.body.sessionId}/questions`);
+    const pg = qs.body.find((q: any) => q.type === 'pg');
+
+    // Submit only 1 answer out of 2 assigned questions
+    const res = await request(app).post(`/api/sessions/${created.body.sessionId}/submit`).send({
+      answers: [
+        { questionId: pg.id, answer: { index: 0 } },
+      ],
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.totalPoints).toBe(10);
+    expect(res.body.maxPoints).toBe(20);
+    expect(res.body.percentage).toBe(50); // 10/20 = 50%, NOT 10/10 = 100%
+  });
+
+  it('ignores duplicate question answers in submission payload', async () => {
+    const created = await request(app).post('/api/sessions').send({ studentName: 'Andi', grade: 8, mode: 'topic', topicId: 2 });
+    const qs = await request(app).get(`/api/sessions/${created.body.sessionId}/questions`);
+    const pg = qs.body.find((q: any) => q.type === 'pg');
+
+    // Duplicate question answer for the same questionId
+    const res = await request(app).post(`/api/sessions/${created.body.sessionId}/submit`).send({
+      answers: [
+        { questionId: pg.id, answer: { index: 0 } },
+        { questionId: pg.id, answer: { index: 0 } },
+      ],
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.totalPoints).toBe(10); // awarded once
+    expect(res.body.maxPoints).toBe(20);
+    expect(res.body.percentage).toBe(50);
+    expect(res.body.breakdown).toHaveLength(1);
   });
 
   it('rejects double submit with 409', async () => {
