@@ -62,6 +62,7 @@ describe('Admin CRUD Pages', () => {
 
   afterEach(() => {
     cleanup();
+    vi.restoreAllMocks();
   });
 
   describe('AdminTopics', () => {
@@ -135,7 +136,8 @@ describe('Admin CRUD Pages', () => {
       expect(await screen.findByText('Sistem Operasi (Kelas 9)')).toBeInTheDocument();
     });
 
-    it('deletes a topic and reloads topic list', async () => {
+    it('deletes a topic when confirmed and reloads topic list', async () => {
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
       useAdminStore.getState().setAuth('test-token', { id: 1, username: 'guru', name: 'Pak Guru' });
       vi.mocked(api.get)
         .mockResolvedValueOnce({ data: mockTopics })
@@ -153,6 +155,8 @@ describe('Admin CRUD Pages', () => {
       const deleteButtons = screen.getAllByRole('button', { name: 'Hapus' });
       fireEvent.click(deleteButtons[0]);
 
+      expect(confirmSpy).toHaveBeenCalledWith('Yakin ingin menghapus?');
+
       await waitFor(() => {
         expect(api.delete).toHaveBeenCalledWith('/api/admin/topics/1', {
           headers: { Authorization: 'Bearer test-token' },
@@ -163,6 +167,26 @@ describe('Admin CRUD Pages', () => {
         expect(screen.queryByText('Algoritma Pemrograman (Kelas 7)')).not.toBeInTheDocument();
       });
       expect(screen.getByText('Jaringan Komputer (Kelas 8)')).toBeInTheDocument();
+    });
+
+    it('cancels topic deletion when user rejects confirmation', async () => {
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+      useAdminStore.getState().setAuth('test-token', { id: 1, username: 'guru', name: 'Pak Guru' });
+      vi.mocked(api.get).mockResolvedValueOnce({ data: mockTopics });
+
+      render(
+        <MemoryRouter>
+          <AdminTopics />
+        </MemoryRouter>
+      );
+
+      await screen.findByText('Algoritma Pemrograman (Kelas 7)');
+
+      const deleteButtons = screen.getAllByRole('button', { name: 'Hapus' });
+      fireEvent.click(deleteButtons[0]);
+
+      expect(confirmSpy).toHaveBeenCalledWith('Yakin ingin menghapus?');
+      expect(api.delete).not.toHaveBeenCalled();
     });
   });
 
@@ -206,6 +230,58 @@ describe('Admin CRUD Pages', () => {
       expect(screen.getByText('[tf] IP address berupa angka.')).toBeInTheDocument();
     });
 
+    it('shows notice and disables submit button when topics list is empty', async () => {
+      useAdminStore.getState().setAuth('test-token', { id: 1, username: 'guru', name: 'Pak Guru' });
+      vi.mocked(api.get)
+        .mockResolvedValueOnce({ data: [] })
+        .mockResolvedValueOnce({ data: [] });
+
+      render(
+        <MemoryRouter>
+          <AdminQuestions />
+        </MemoryRouter>
+      );
+
+      expect(await screen.findByText('Silakan buat topik terlebih dahulu')).toBeInTheDocument();
+      const submitButton = screen.getByRole('button', { name: 'Simpan' });
+      expect(submitButton).toBeDisabled();
+    });
+
+    it('provides default sample JSON template when changing question type', async () => {
+      useAdminStore.getState().setAuth('test-token', { id: 1, username: 'guru', name: 'Pak Guru' });
+      vi.mocked(api.get)
+        .mockResolvedValueOnce({ data: mockQuestions })
+        .mockResolvedValueOnce({ data: mockTopics });
+
+      render(
+        <MemoryRouter>
+          <AdminQuestions />
+        </MemoryRouter>
+      );
+
+      await screen.findByText('[pg] Apa itu pseudocode?');
+
+      const typeSelect = screen.getByLabelText('Tipe Soal');
+      const dataTextarea = screen.getByPlaceholderText(/JSON data/);
+
+      // Default type is 'pg'
+      expect(dataTextarea).toHaveValue('{"options":["A","B","C","D"],"correctIndex":0}');
+
+      // Change to tf
+      fireEvent.change(typeSelect, { target: { value: 'tf' } });
+      expect(dataTextarea).toHaveValue('{"correctAnswer":true}');
+
+      // Change to matching
+      fireEvent.change(typeSelect, { target: { value: 'matching' } });
+      expect(dataTextarea).toHaveValue(
+        '{"pairs":[{"left":"Istilah 1","right":"Definisi 1"},{"left":"Istilah 2","right":"Definisi 2"}]}'
+      );
+
+      // Change to ordering
+      fireEvent.change(typeSelect, { target: { value: 'ordering' } });
+      expect(dataTextarea).toHaveValue('{"correctOrder":["Langkah 1","Langkah 2","Langkah 3"]}');
+    });
+
     it('submits a new question with parsed JSON and reloads question list', async () => {
       useAdminStore.getState().setAuth('test-token', { id: 1, username: 'guru', name: 'Pak Guru' });
       vi.mocked(api.get)
@@ -225,10 +301,9 @@ describe('Admin CRUD Pages', () => {
       fireEvent.change(screen.getByPlaceholderText('Prompt soal'), {
         target: { value: 'Kabel UTP pakai konektor RJ45?' },
       });
-      fireEvent.change(
-        screen.getByPlaceholderText('JSON data, e.g. {"options":["a","b"],"correctIndex":0}'),
-        { target: { value: '{"correctAnswer": true}' } }
-      );
+      fireEvent.change(screen.getByPlaceholderText(/JSON data/), {
+        target: { value: '{"correctAnswer": true}' },
+      });
       fireEvent.change(screen.getByLabelText('Tingkat Kesulitan'), { target: { value: 'medium' } });
       fireEvent.change(screen.getByLabelText('Poin'), { target: { value: '20' } });
 
@@ -286,10 +361,9 @@ describe('Admin CRUD Pages', () => {
       await screen.findByText('[pg] Apa itu pseudocode?');
 
       fireEvent.change(screen.getByPlaceholderText('Prompt soal'), { target: { value: 'Tes invalid' } });
-      fireEvent.change(
-        screen.getByPlaceholderText('JSON data, e.g. {"options":["a","b"],"correctIndex":0}'),
-        { target: { value: '{ invalid-json }' } }
-      );
+      fireEvent.change(screen.getByPlaceholderText(/JSON data/), {
+        target: { value: '{ invalid-json }' },
+      });
 
       fireEvent.click(screen.getByRole('button', { name: 'Simpan' }));
 
@@ -318,17 +392,17 @@ describe('Admin CRUD Pages', () => {
 
       await screen.findByText('[pg] Apa itu pseudocode?');
 
-      fireEvent.change(
-        screen.getByPlaceholderText('JSON data, e.g. {"options":["a","b"],"correctIndex":0}'),
-        { target: { value: '{"options":["a","b"],"correctIndex":5}' } }
-      );
+      fireEvent.change(screen.getByPlaceholderText(/JSON data/), {
+        target: { value: '{"options":["a","b"],"correctIndex":5}' },
+      });
 
       fireEvent.click(screen.getByRole('button', { name: 'Simpan' }));
 
       expect(await screen.findByText('correctIndex must be within options range')).toBeInTheDocument();
     });
 
-    it('deletes a question and reloads question list', async () => {
+    it('deletes a question when confirmed and reloads question list', async () => {
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
       useAdminStore.getState().setAuth('test-token', { id: 1, username: 'guru', name: 'Pak Guru' });
       vi.mocked(api.get)
         .mockResolvedValueOnce({ data: mockQuestions })
@@ -346,11 +420,35 @@ describe('Admin CRUD Pages', () => {
       const deleteButtons = screen.getAllByRole('button', { name: 'Hapus' });
       fireEvent.click(deleteButtons[0]);
 
+      expect(confirmSpy).toHaveBeenCalledWith('Yakin ingin menghapus?');
+
       await waitFor(() => {
         expect(api.delete).toHaveBeenCalledWith('/api/admin/questions/10', {
           headers: { Authorization: 'Bearer test-token' },
         });
       });
+    });
+
+    it('cancels question deletion when user rejects confirmation', async () => {
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+      useAdminStore.getState().setAuth('test-token', { id: 1, username: 'guru', name: 'Pak Guru' });
+      vi.mocked(api.get)
+        .mockResolvedValueOnce({ data: mockQuestions })
+        .mockResolvedValueOnce({ data: mockTopics });
+
+      render(
+        <MemoryRouter>
+          <AdminQuestions />
+        </MemoryRouter>
+      );
+
+      await screen.findByText('[pg] Apa itu pseudocode?');
+
+      const deleteButtons = screen.getAllByRole('button', { name: 'Hapus' });
+      fireEvent.click(deleteButtons[0]);
+
+      expect(confirmSpy).toHaveBeenCalledWith('Yakin ingin menghapus?');
+      expect(api.delete).not.toHaveBeenCalled();
     });
   });
 

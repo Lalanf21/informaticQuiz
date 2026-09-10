@@ -4,6 +4,13 @@ import { api } from '../api/client';
 import { useAdminStore } from '../stores/useAdminStore';
 import type { Topic } from '../types';
 
+const DEFAULT_JSON_TEMPLATES: Record<'pg' | 'tf' | 'matching' | 'ordering', string> = {
+  pg: '{"options":["A","B","C","D"],"correctIndex":0}',
+  tf: '{"correctAnswer":true}',
+  matching: '{"pairs":[{"left":"Istilah 1","right":"Definisi 1"},{"left":"Istilah 2","right":"Definisi 2"}]}',
+  ordering: '{"correctOrder":["Langkah 1","Langkah 2","Langkah 3"]}',
+};
+
 export default function AdminQuestions() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -11,7 +18,7 @@ export default function AdminQuestions() {
     topicId: 0,
     type: 'pg' as 'pg' | 'tf' | 'matching' | 'ordering',
     prompt: '',
-    dataStr: '',
+    dataStr: DEFAULT_JSON_TEMPLATES.pg,
     difficulty: 'easy' as 'easy' | 'medium' | 'hard',
     points: 10,
   });
@@ -44,8 +51,19 @@ export default function AdminQuestions() {
 
   if (!token) return null;
 
+  const handleTypeChange = (newType: 'pg' | 'tf' | 'matching' | 'ordering') => {
+    const currentTemplates = Object.values(DEFAULT_JSON_TEMPLATES);
+    const isTemplateOrEmpty = form.dataStr === '' || currentTemplates.includes(form.dataStr);
+    setForm((prev) => ({
+      ...prev,
+      type: newType,
+      dataStr: isTemplateOrEmpty ? DEFAULT_JSON_TEMPLATES[newType] : prev.dataStr,
+    }));
+  };
+
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (topics.length === 0) return;
     setError('');
     let data: any;
     try {
@@ -61,7 +79,7 @@ export default function AdminQuestions() {
         { ...payload, data },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setForm((f) => ({ ...f, prompt: '', dataStr: '' }));
+      setForm((f) => ({ ...f, prompt: '', dataStr: DEFAULT_JSON_TEMPLATES[f.type] }));
       load();
     } catch (err: any) {
       setError(err.response?.data?.details?.[0]?.message || err.response?.data?.error || 'Gagal simpan');
@@ -69,6 +87,7 @@ export default function AdminQuestions() {
   };
 
   const del = async (id: number) => {
+    if (!window.confirm('Yakin ingin menghapus?')) return;
     setError('');
     try {
       await api.delete(`/api/admin/questions/${id}`, { headers: { Authorization: `Bearer ${token}` } });
@@ -88,6 +107,9 @@ export default function AdminQuestions() {
       </div>
       <form onSubmit={add} className="bg-white p-4 rounded shadow mb-6 space-y-2">
         <h2 className="font-semibold">Tambah Soal</h2>
+        {topics.length === 0 && (
+          <p className="text-amber-600 text-sm">Silakan buat topik terlebih dahulu</p>
+        )}
         <select
           aria-label="Pilih Topik"
           value={form.topicId}
@@ -103,7 +125,7 @@ export default function AdminQuestions() {
         <select
           aria-label="Tipe Soal"
           value={form.type}
-          onChange={(e) => setForm({ ...form, type: e.target.value as any })}
+          onChange={(e) => handleTypeChange(e.target.value as any)}
           className="w-full p-2 border rounded"
         >
           <option value="pg">Pilihan Ganda</option>
@@ -120,7 +142,7 @@ export default function AdminQuestions() {
         <textarea
           value={form.dataStr}
           onChange={(e) => setForm({ ...form, dataStr: e.target.value })}
-          placeholder='JSON data, e.g. {"options":["a","b"],"correctIndex":0}'
+          placeholder={`JSON data, e.g. ${DEFAULT_JSON_TEMPLATES[form.type]}`}
           className="w-full p-2 border rounded h-24"
         />
         <select
@@ -141,7 +163,13 @@ export default function AdminQuestions() {
           className="w-full p-2 border rounded"
         />
         {error && <p className="text-red-600 text-sm">{error}</p>}
-        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
+        <button
+          type="submit"
+          disabled={topics.length === 0}
+          className={`px-4 py-2 rounded text-white ${
+            topics.length === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600'
+          }`}
+        >
           Simpan
         </button>
       </form>

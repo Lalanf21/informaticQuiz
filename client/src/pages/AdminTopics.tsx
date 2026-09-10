@@ -47,6 +47,7 @@ export default function AdminTopics() {
   };
 
   const del = async (id: number) => {
+    if (!window.confirm('Yakin ingin menghapus?')) return;
     setError('');
     try {
       await api.delete(`/api/admin/topics/${id}`, { headers: { Authorization: `Bearer ${token}` } });
