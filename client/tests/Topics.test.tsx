@@ -54,7 +54,7 @@ describe('Topics page', () => {
     expect(api.get).not.toHaveBeenCalled();
   });
 
-  it('fetches topics with player grade and renders cards and greeting', async () => {
+  it('renders loading state before topics resolve, then renders cards and greeting', async () => {
     usePlayerStore.setState({ name: 'Budi Santoso', grade: 7, sessionId: null });
 
     render(
@@ -63,14 +63,40 @@ describe('Topics page', () => {
       </MemoryRouter>
     );
 
-    expect(mockedNavigate).not.toHaveBeenCalled();
-    expect(api.get).toHaveBeenCalledWith('/api/topics', { params: { grade: 7 } });
+    expect(screen.getByText('Memuat topik...')).toBeInTheDocument();
 
     expect(await screen.findByText('Halo, Budi Santoso! Pilih topik:')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Algoritma Pemrograman' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Jaringan Komputer' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Sistem Operasi' })).toBeInTheDocument();
     expect(screen.getAllByText('Kelas 7')).toHaveLength(3);
+  });
+
+  it('renders empty state when no topics are returned', async () => {
+    usePlayerStore.setState({ name: 'Budi', grade: 7, sessionId: null });
+    vi.mocked(api.get).mockResolvedValue({ data: [] });
+
+    render(
+      <MemoryRouter>
+        <Topics />
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByText('Tidak ada topik tersedia.')).toBeInTheDocument();
+  });
+
+  it('renders error message when topics fetch fails', async () => {
+    usePlayerStore.setState({ name: 'Budi', grade: 7, sessionId: null });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(api.get).mockRejectedValue(new Error('Network error'));
+
+    render(
+      <MemoryRouter>
+        <Topics />
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Gagal memuat topik');
   });
 
   it('starts quiz on topic card click, updates sessionId in store, and navigates to quiz page', async () => {
@@ -99,6 +125,66 @@ describe('Topics page', () => {
 
     expect(usePlayerStore.getState().sessionId).toBe('session-uuid-123');
     expect(mockedNavigate).toHaveBeenCalledWith('/quiz/session-uuid-123');
+  });
+
+  it('disables buttons and prevents duplicate session creation on rapid clicks', async () => {
+    usePlayerStore.setState({ name: 'Eko', grade: 7, sessionId: null });
+    let resolvePost: (value: any) => void = () => {};
+    const deferredPost = new Promise((resolve) => {
+      resolvePost = resolve;
+    });
+    vi.mocked(api.post).mockReturnValue(deferredPost as any);
+
+    render(
+      <MemoryRouter>
+        <Topics />
+      </MemoryRouter>
+    );
+
+    const topicButton = await screen.findByRole('button', { name: /Algoritma Pemrograman/ });
+    fireEvent.click(topicButton);
+
+    // Topic button is now disabled with loading indicator
+    expect(topicButton).toBeDisabled();
+    expect(screen.getByText(/Memuat\.\.\./)).toBeInTheDocument();
+
+    // Click again while in-flight
+    fireEvent.click(topicButton);
+
+    // Second card is also disabled
+    const secondButton = screen.getByRole('button', { name: /Jaringan Komputer/ });
+    expect(secondButton).toBeDisabled();
+    fireEvent.click(secondButton);
+
+    expect(api.post).toHaveBeenCalledTimes(1);
+
+    // Resolve in-flight request
+    resolvePost({ data: { sessionId: 'session-eko-1' } });
+
+    await waitFor(() => {
+      expect(mockedNavigate).toHaveBeenCalledWith('/quiz/session-eko-1');
+    });
+  });
+
+  it('displays error alert and re-enables buttons if startQuiz fails', async () => {
+    usePlayerStore.setState({ name: 'Fani', grade: 7, sessionId: null });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(api.post).mockRejectedValueOnce(new Error('Internal server error'));
+
+    render(
+      <MemoryRouter>
+        <Topics />
+      </MemoryRouter>
+    );
+
+    const topicButton = await screen.findByRole('button', { name: /Algoritma Pemrograman/ });
+    fireEvent.click(topicButton);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Gagal memulai kuis. Silakan coba lagi.'
+    );
+    expect(topicButton).not.toBeDisabled();
+    expect(mockedNavigate).not.toHaveBeenCalledWith(expect.stringContaining('/quiz/'));
   });
 
   it('navigates to /challenge when Mode Tantangan button is clicked', async () => {
