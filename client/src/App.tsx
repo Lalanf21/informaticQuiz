@@ -9,6 +9,8 @@ import Result from './pages/Result';
 import Leaderboard from './pages/Leaderboard';
 import AdminLogin from './pages/AdminLogin';
 import AdminRegister from './pages/AdminRegister';
+import AdminTopics from './pages/AdminTopics';
+import AdminQuestions from './pages/AdminQuestions';
 
 export default function App() {
   return (
@@ -23,6 +25,8 @@ export default function App() {
       <Route path="/leaderboard" element={<Leaderboard />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/register" element={<AdminRegister />} />
+      <Route path="/admin/topics" element={<AdminTopics />} />
+      <Route path="/admin/questions" element={<AdminQuestions />} />
     </Routes>
   );
 }
