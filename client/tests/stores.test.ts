@@ -97,6 +97,13 @@ describe('useQuizStore', () => {
     expect(useQuizStore.getState().answers[2]).toEqual({ selected: true });
   });
 
+  it('clamps currentIndex to 0 when next() is called on empty questions array', () => {
+    useQuizStore.getState().reset();
+    expect(useQuizStore.getState().questions).toHaveLength(0);
+    useQuizStore.getState().next();
+    expect(useQuizStore.getState().currentIndex).toBe(0);
+  });
+
   it('handles navigation next and prev with bounds clamping', () => {
     useQuizStore.getState().setQuestions(sampleQuestions, 'campaign');
 
@@ -200,13 +207,25 @@ describe('api client', () => {
     }
   });
 
-  it('redirects to /admin/login on 401 when in /admin path', async () => {
+  it('redirects to /admin/login and clears admin auth on 401 when in /admin path', async () => {
+    useAdminStore.getState().setAuth('stale-token', { id: 1, username: 'admin', name: null });
     const errorHandler = (api.interceptors.response as any).handlers[0]?.rejected;
     expect(errorHandler).toBeDefined();
 
     const err = { response: { status: 401 } };
     await expect(errorHandler(err)).rejects.toEqual(err);
     expect(window.location.href).toBe('/admin/login');
+    expect(useAdminStore.getState().token).toBeNull();
+    expect(useAdminStore.getState().teacher).toBeNull();
+  });
+
+  it('does not redirect if already on /admin/login', async () => {
+    window.location.pathname = '/admin/login';
+    const errorHandler = (api.interceptors.response as any).handlers[0]?.rejected;
+
+    const err = { response: { status: 401 } };
+    await expect(errorHandler(err)).rejects.toEqual(err);
+    expect(window.location.href).toBe('');
   });
 
   it('does not redirect on 401 when outside /admin path', async () => {

@@ -25,7 +25,10 @@ export const useQuizStore = create<QuizState>()(
       mode: null,
       setQuestions: (q, mode) => set({ questions: q, currentIndex: 0, answers: {}, startedAt: Date.now(), mode }),
       setAnswer: (questionId, answer) => set((s) => ({ answers: { ...s.answers, [questionId]: answer } })),
-      next: () => set((s) => ({ currentIndex: Math.min(s.currentIndex + 1, s.questions.length - 1) })),
+      next: () =>
+        set((s) => ({
+          currentIndex: s.questions.length > 0 ? Math.min(s.currentIndex + 1, s.questions.length - 1) : 0,
+        })),
       prev: () => set((s) => ({ currentIndex: Math.max(s.currentIndex - 1, 0) })),
       reset: () => set({ questions: [], currentIndex: 0, answers: {}, startedAt: null, mode: null }),
     }),
