@@ -5,6 +5,7 @@ import { migrate } from './db/migrate';
 import { topicsRouter } from './routes/topics';
 import { sessionsRouter } from './routes/sessions';
 import { quizzesRouter } from './routes/quizzes';
+import { scoresRouter } from './routes/scores';
 import { errorHandler } from './middleware/errorHandler';
 
 migrate();
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use('/api/topics', topicsRouter);
 app.use('/api/sessions', sessionsRouter);
 app.use('/api/quizzes', quizzesRouter);
+app.use('/api/scores', scoresRouter);
 
 app.use(errorHandler);
 
