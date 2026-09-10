@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import { migrate } from './db/migrate';
 import { topicsRouter } from './routes/topics';
+import { sessionsRouter } from './routes/sessions';
 import { errorHandler } from './middleware/errorHandler';
 
 migrate();
@@ -13,6 +14,7 @@ app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 
 app.use('/api/topics', topicsRouter);
+app.use('/api/sessions', sessionsRouter);
 
 app.use(errorHandler);
 
