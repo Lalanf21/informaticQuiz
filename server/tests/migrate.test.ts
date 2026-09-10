@@ -1,15 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Database from 'better-sqlite3';
 import type { Database as DBType } from 'better-sqlite3';
-import fs from 'fs';
-import path from 'path';
+import { migrate } from '../src/db/migrate';
 
 let db: DBType;
 
 beforeEach(() => {
   db = new Database(':memory:');
-  const sql = fs.readFileSync(path.join(__dirname, '..', 'src', 'db', 'schema.sql'), 'utf-8');
-  db.exec(sql);
+  migrate(db);
 });
 
 afterEach(() => db.close());
@@ -27,8 +25,24 @@ describe('schema migration', () => {
     expect(names).toContain('session_questions');
   });
 
+  it('is idempotent when run multiple times', () => {
+    expect(() => migrate(db)).not.toThrow();
+  });
+
   it('enforces grade CHECK constraint', () => {
     expect(() => db.prepare('INSERT INTO topics (name, grade) VALUES (?, ?)').run('x', 6))
+      .toThrow();
+  });
+
+  it('enforces grade CHECK constraint on scores', () => {
+    db.prepare('INSERT INTO quiz_sessions (id, student_name, grade, mode) VALUES (?, ?, ?, ?)').run('sess1', 'Siswa', 7, 'topic');
+    expect(() => db.prepare('INSERT INTO scores (session_id, student_name, grade, mode, total_points, max_points, percentage) VALUES (?, ?, ?, ?, ?, ?, ?)').run('sess1', 'Siswa', 6, 'topic', 10, 10, 100))
+      .toThrow();
+  });
+
+  it('enforces mode CHECK constraint on scores', () => {
+    db.prepare('INSERT INTO quiz_sessions (id, student_name, grade, mode) VALUES (?, ?, ?, ?)').run('sess1', 'Siswa', 7, 'topic');
+    expect(() => db.prepare('INSERT INTO scores (session_id, student_name, grade, mode, total_points, max_points, percentage) VALUES (?, ?, ?, ?, ?, ?, ?)').run('sess1', 'Siswa', 7, 'invalid_mode', 10, 10, 100))
       .toThrow();
   });
 

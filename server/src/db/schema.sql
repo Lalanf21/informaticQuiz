@@ -1,7 +1,7 @@
 PRAGMA foreign_keys = ON;
 
 -- 1. Guru/admin (akun untuk dashboard)
-CREATE TABLE teachers (
+CREATE TABLE IF NOT EXISTS teachers (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   username     TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE teachers (
 );
 
 -- 2. Topik
-CREATE TABLE topics (
+CREATE TABLE IF NOT EXISTS topics (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   name         TEXT NOT NULL,
   grade        INTEGER NOT NULL CHECK (grade IN (7,8,9)),
@@ -19,7 +19,7 @@ CREATE TABLE topics (
 );
 
 -- 3. Soal polymorphic
-CREATE TABLE questions (
+CREATE TABLE IF NOT EXISTS questions (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   topic_id     INTEGER NOT NULL REFERENCES topics(id) ON DELETE CASCADE,
   type         TEXT NOT NULL CHECK (type IN ('pg','tf','matching','ordering')),
@@ -32,7 +32,7 @@ CREATE TABLE questions (
 );
 
 -- 4. Sesi kuis
-CREATE TABLE quiz_sessions (
+CREATE TABLE IF NOT EXISTS quiz_sessions (
   id           TEXT PRIMARY KEY,
   student_name TEXT NOT NULL,
   grade        INTEGER NOT NULL CHECK (grade IN (7,8,9)),
@@ -44,7 +44,7 @@ CREATE TABLE quiz_sessions (
 );
 
 -- 5. Jawaban siswa per soal
-CREATE TABLE session_answers (
+CREATE TABLE IF NOT EXISTS session_answers (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   session_id   TEXT NOT NULL REFERENCES quiz_sessions(id) ON DELETE CASCADE,
   question_id  INTEGER NOT NULL REFERENCES questions(id),
@@ -55,13 +55,13 @@ CREATE TABLE session_answers (
 );
 
 -- 6. Skor final per sesi
-CREATE TABLE scores (
+CREATE TABLE IF NOT EXISTS scores (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   session_id   TEXT NOT NULL UNIQUE REFERENCES quiz_sessions(id) ON DELETE CASCADE,
   student_name TEXT NOT NULL,
-  grade        INTEGER NOT NULL,
+  grade        INTEGER NOT NULL CHECK (grade IN (7,8,9)),
   topic_id     INTEGER REFERENCES topics(id),
-  mode         TEXT NOT NULL,
+  mode         TEXT NOT NULL CHECK (mode IN ('topic','challenge','campaign')),
   total_points INTEGER NOT NULL,
   max_points   INTEGER NOT NULL,
   percentage   REAL NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE scores (
 );
 
 -- 7. Daftar soal per sesi (determinisme & urutan acak)
-CREATE TABLE session_questions (
+CREATE TABLE IF NOT EXISTS session_questions (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   session_id   TEXT NOT NULL REFERENCES quiz_sessions(id) ON DELETE CASCADE,
   question_id  INTEGER NOT NULL REFERENCES questions(id),
@@ -77,7 +77,7 @@ CREATE TABLE session_questions (
   UNIQUE(session_id, question_id)
 );
 
-CREATE INDEX idx_scores_points ON scores(total_points DESC);
-CREATE INDEX idx_scores_topic ON scores(topic_id);
-CREATE INDEX idx_sessions_name ON quiz_sessions(student_name);
-CREATE INDEX idx_session_questions ON session_questions(session_id);
+CREATE INDEX IF NOT EXISTS idx_scores_points ON scores(total_points DESC);
+CREATE INDEX IF NOT EXISTS idx_scores_topic ON scores(topic_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_name ON quiz_sessions(student_name);
+CREATE INDEX IF NOT EXISTS idx_session_questions ON session_questions(session_id);
