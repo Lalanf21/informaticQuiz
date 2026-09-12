@@ -31,7 +31,7 @@ describe('Home page', () => {
     render(
       <MemoryRouter>
         <Home />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getByRole('heading', { name: 'InformaticQuiz' })).toBeInTheDocument();
@@ -48,7 +48,7 @@ describe('Home page', () => {
     render(
       <MemoryRouter>
         <Home />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Mulai' }));
@@ -62,7 +62,7 @@ describe('Home page', () => {
     render(
       <MemoryRouter>
         <Home />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     fireEvent.change(screen.getByPlaceholderText('Nama lengkap'), {
@@ -78,7 +78,7 @@ describe('Home page', () => {
     render(
       <MemoryRouter>
         <Home />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     fireEvent.change(screen.getByLabelText('Kelas'), {
@@ -94,7 +94,7 @@ describe('Home page', () => {
     render(
       <MemoryRouter>
         <Home />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     fireEvent.change(screen.getByPlaceholderText('Nama lengkap'), {
@@ -113,7 +113,7 @@ describe('Home page', () => {
     render(
       <MemoryRouter>
         <Home />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     fireEvent.change(screen.getByPlaceholderText('Nama lengkap'), {
@@ -133,7 +133,7 @@ describe('Home page', () => {
     render(
       <MemoryRouter>
         <Home />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const select = screen.getByLabelText('Kelas') as HTMLSelectElement;
@@ -155,7 +155,7 @@ describe('Home page', () => {
     render(
       <MemoryRouter initialEntries={['/']}>
         <App />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getByRole('heading', { name: 'InformaticQuiz' })).toBeInTheDocument();

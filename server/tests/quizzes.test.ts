@@ -10,16 +10,29 @@ beforeEach(() => {
   db.prepare('INSERT INTO topics (id, name, grade) VALUES (?, ?, ?)').run(1, 'Algoritma', 7);
   db.prepare('INSERT INTO topics (id, name, grade) VALUES (?, ?, ?)').run(2, 'Jaringan', 8);
 
-  db.prepare('INSERT INTO questions (id, topic_id, type, prompt, data, difficulty, points) VALUES (?,?,?,?,?,?,?)')
-    .run(1, 1, 'pg', '1+1?', '{"options":["1","2","3","4"],"correctIndex":1}', 'easy', 10);
-  db.prepare('INSERT INTO questions (id, topic_id, type, prompt, data, difficulty, points) VALUES (?,?,?,?,?,?,?)')
-    .run(2, 1, 'tf', 'HTTP aman?', '{"correctAnswer":true}', 'medium', 10);
-  db.prepare('INSERT INTO questions (id, topic_id, type, prompt, data, difficulty, points) VALUES (?,?,?,?,?,?,?)')
-    .run(3, 1, 'matching', 'Cocokkan protokol', '{"pairs":[{"left":"HTTP","right":"80"},{"left":"HTTPS","right":"443"}]}', 'hard', 10);
-  db.prepare('INSERT INTO questions (id, topic_id, type, prompt, data, difficulty, points) VALUES (?,?,?,?,?,?,?)')
-    .run(4, 1, 'ordering', 'Urutan boot', '{"correctOrder":["BIOS","POST","OS"]}', 'hard', 10);
-  db.prepare('INSERT INTO questions (id, topic_id, type, prompt, data, difficulty, points) VALUES (?,?,?,?,?,?,?)')
-    .run(5, 2, 'pg', 'IP?', '{"options":["v4","v6"],"correctIndex":0}', 'easy', 10);
+  db.prepare(
+    'INSERT INTO questions (id, topic_id, type, prompt, data, difficulty, points) VALUES (?,?,?,?,?,?,?)',
+  ).run(1, 1, 'pg', '1+1?', '{"options":["1","2","3","4"],"correctIndex":1}', 'easy', 10);
+  db.prepare(
+    'INSERT INTO questions (id, topic_id, type, prompt, data, difficulty, points) VALUES (?,?,?,?,?,?,?)',
+  ).run(2, 1, 'tf', 'HTTP aman?', '{"correctAnswer":true}', 'medium', 10);
+  db.prepare(
+    'INSERT INTO questions (id, topic_id, type, prompt, data, difficulty, points) VALUES (?,?,?,?,?,?,?)',
+  ).run(
+    3,
+    1,
+    'matching',
+    'Cocokkan protokol',
+    '{"pairs":[{"left":"HTTP","right":"80"},{"left":"HTTPS","right":"443"}]}',
+    'hard',
+    10,
+  );
+  db.prepare(
+    'INSERT INTO questions (id, topic_id, type, prompt, data, difficulty, points) VALUES (?,?,?,?,?,?,?)',
+  ).run(4, 1, 'ordering', 'Urutan boot', '{"correctOrder":["BIOS","POST","OS"]}', 'hard', 10);
+  db.prepare(
+    'INSERT INTO questions (id, topic_id, type, prompt, data, difficulty, points) VALUES (?,?,?,?,?,?,?)',
+  ).run(5, 2, 'pg', 'IP?', '{"options":["v4","v6"],"correctIndex":0}', 'easy', 10);
 });
 
 afterEach(() => {

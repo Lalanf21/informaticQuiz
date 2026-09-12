@@ -74,16 +74,10 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
             Mode Campaign
           </button>
         )}
-        <button
-          onClick={onPlayAgain}
-          className="flex-1 py-3 bg-blue-600 text-white rounded-lg"
-        >
+        <button onClick={onPlayAgain} className="flex-1 py-3 bg-blue-600 text-white rounded-lg">
           Kuis Lagi
         </button>
-        <button
-          onClick={onLeaderboard}
-          className="flex-1 py-3 bg-gray-700 text-white rounded-lg"
-        >
+        <button onClick={onLeaderboard} className="flex-1 py-3 bg-gray-700 text-white rounded-lg">
           Leaderboard
         </button>
       </div>

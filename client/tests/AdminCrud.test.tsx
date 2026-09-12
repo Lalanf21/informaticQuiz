@@ -70,7 +70,7 @@ describe('Admin CRUD Pages', () => {
       render(
         <MemoryRouter>
           <AdminTopics />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(mockedNavigate).toHaveBeenCalledWith('/admin/login');
@@ -84,11 +84,14 @@ describe('Admin CRUD Pages', () => {
       render(
         <MemoryRouter>
           <AdminTopics />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(screen.getByRole('heading', { name: 'Kelola Topik' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Kelola Soal' })).toHaveAttribute('href', '/admin/questions');
+      expect(screen.getByRole('link', { name: 'Kelola Soal' })).toHaveAttribute(
+        'href',
+        '/admin/questions',
+      );
 
       await waitFor(() => {
         expect(api.get).toHaveBeenCalledWith('/api/admin/topics', {
@@ -112,7 +115,7 @@ describe('Admin CRUD Pages', () => {
       render(
         <MemoryRouter>
           <AdminTopics />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await screen.findByText('Algoritma Pemrograman (Kelas 7)');
@@ -128,7 +131,7 @@ describe('Admin CRUD Pages', () => {
         expect(api.post).toHaveBeenCalledWith(
           '/api/admin/topics',
           { name: 'Sistem Operasi', grade: 9 },
-          { headers: { Authorization: 'Bearer test-token' } }
+          { headers: { Authorization: 'Bearer test-token' } },
         );
       });
 
@@ -147,7 +150,7 @@ describe('Admin CRUD Pages', () => {
       render(
         <MemoryRouter>
           <AdminTopics />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await screen.findByText('Algoritma Pemrograman (Kelas 7)');
@@ -177,7 +180,7 @@ describe('Admin CRUD Pages', () => {
       render(
         <MemoryRouter>
           <AdminTopics />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await screen.findByText('Algoritma Pemrograman (Kelas 7)');
@@ -195,7 +198,7 @@ describe('Admin CRUD Pages', () => {
       render(
         <MemoryRouter>
           <AdminQuestions />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(mockedNavigate).toHaveBeenCalledWith('/admin/login');
@@ -211,11 +214,14 @@ describe('Admin CRUD Pages', () => {
       render(
         <MemoryRouter>
           <AdminQuestions />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(screen.getByRole('heading', { name: 'Kelola Soal' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Kelola Topik' })).toHaveAttribute('href', '/admin/topics');
+      expect(screen.getByRole('link', { name: 'Kelola Topik' })).toHaveAttribute(
+        'href',
+        '/admin/topics',
+      );
 
       await waitFor(() => {
         expect(api.get).toHaveBeenCalledWith('/api/admin/questions', {
@@ -232,14 +238,12 @@ describe('Admin CRUD Pages', () => {
 
     it('shows notice and disables submit button when topics list is empty', async () => {
       useAdminStore.getState().setAuth('test-token', { id: 1, username: 'guru', name: 'Pak Guru' });
-      vi.mocked(api.get)
-        .mockResolvedValueOnce({ data: [] })
-        .mockResolvedValueOnce({ data: [] });
+      vi.mocked(api.get).mockResolvedValueOnce({ data: [] }).mockResolvedValueOnce({ data: [] });
 
       render(
         <MemoryRouter>
           <AdminQuestions />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(await screen.findByText('Silakan buat topik terlebih dahulu')).toBeInTheDocument();
@@ -256,7 +260,7 @@ describe('Admin CRUD Pages', () => {
       render(
         <MemoryRouter>
           <AdminQuestions />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await screen.findByText('[pg] Apa itu pseudocode?');
@@ -274,7 +278,7 @@ describe('Admin CRUD Pages', () => {
       // Change to matching
       fireEvent.change(typeSelect, { target: { value: 'matching' } });
       expect(dataTextarea).toHaveValue(
-        '{"pairs":[{"left":"Istilah 1","right":"Definisi 1"},{"left":"Istilah 2","right":"Definisi 2"}]}'
+        '{"pairs":[{"left":"Istilah 1","right":"Definisi 1"},{"left":"Istilah 2","right":"Definisi 2"}]}',
       );
 
       // Change to ordering
@@ -291,7 +295,7 @@ describe('Admin CRUD Pages', () => {
       render(
         <MemoryRouter>
           <AdminQuestions />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await screen.findByText('[pg] Apa itu pseudocode?');
@@ -338,7 +342,7 @@ describe('Admin CRUD Pages', () => {
             difficulty: 'medium',
             points: 20,
           },
-          { headers: { Authorization: 'Bearer test-token' } }
+          { headers: { Authorization: 'Bearer test-token' } },
         );
       });
 
@@ -355,12 +359,14 @@ describe('Admin CRUD Pages', () => {
       render(
         <MemoryRouter>
           <AdminQuestions />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await screen.findByText('[pg] Apa itu pseudocode?');
 
-      fireEvent.change(screen.getByPlaceholderText('Prompt soal'), { target: { value: 'Tes invalid' } });
+      fireEvent.change(screen.getByPlaceholderText('Prompt soal'), {
+        target: { value: 'Tes invalid' },
+      });
       fireEvent.change(screen.getByPlaceholderText(/JSON data/), {
         target: { value: '{ invalid-json }' },
       });
@@ -387,7 +393,7 @@ describe('Admin CRUD Pages', () => {
       render(
         <MemoryRouter>
           <AdminQuestions />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await screen.findByText('[pg] Apa itu pseudocode?');
@@ -398,7 +404,9 @@ describe('Admin CRUD Pages', () => {
 
       fireEvent.click(screen.getByRole('button', { name: 'Simpan' }));
 
-      expect(await screen.findByText('correctIndex must be within options range')).toBeInTheDocument();
+      expect(
+        await screen.findByText('correctIndex must be within options range'),
+      ).toBeInTheDocument();
     });
 
     it('deletes a question when confirmed and reloads question list', async () => {
@@ -412,7 +420,7 @@ describe('Admin CRUD Pages', () => {
       render(
         <MemoryRouter>
           <AdminQuestions />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await screen.findByText('[pg] Apa itu pseudocode?');
@@ -439,7 +447,7 @@ describe('Admin CRUD Pages', () => {
       render(
         <MemoryRouter>
           <AdminQuestions />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await screen.findByText('[pg] Apa itu pseudocode?');
@@ -460,7 +468,7 @@ describe('Admin CRUD Pages', () => {
       render(
         <MemoryRouter initialEntries={['/admin/topics']}>
           <App />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(await screen.findByRole('heading', { name: 'Kelola Topik' })).toBeInTheDocument();
@@ -475,7 +483,7 @@ describe('Admin CRUD Pages', () => {
       render(
         <MemoryRouter initialEntries={['/admin/questions']}>
           <App />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(await screen.findByRole('heading', { name: 'Kelola Soal' })).toBeInTheDocument();

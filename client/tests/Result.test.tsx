@@ -60,7 +60,7 @@ describe('Result page', () => {
         <Routes>
           <Route path="/result/:sessionId" element={<Result />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
   };
 
@@ -140,7 +140,7 @@ describe('Result page', () => {
     render(
       <MemoryRouter initialEntries={['/result/sess-routed']}>
         <App />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => {
@@ -183,7 +183,9 @@ describe('Result page', () => {
       const raw = localStorage.getItem('campaign-progress');
       expect(raw).toBeTruthy();
       expect(JSON.parse(raw!)).toEqual({ '2': 2 });
-      expect(screen.getByText(/Selamat! Kamu berhasil membuka level berikutnya!/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Selamat! Kamu berhasil membuka level berikutnya!/i),
+      ).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Mode Campaign' })).toBeInTheDocument();
     });
 
@@ -208,8 +210,12 @@ describe('Result page', () => {
     renderResult('sess-camp-lvl3');
 
     await waitFor(() => {
-      expect(screen.getByText('Selamat! Kamu telah menuntaskan semua level di topik ini!')).toBeInTheDocument();
-      expect(screen.queryByText('Selamat! Kamu berhasil membuka level berikutnya!')).not.toBeInTheDocument();
+      expect(
+        screen.getByText('Selamat! Kamu telah menuntaskan semua level di topik ini!'),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText('Selamat! Kamu berhasil membuka level berikutnya!'),
+      ).not.toBeInTheDocument();
     });
   });
 

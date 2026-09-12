@@ -24,7 +24,11 @@ export default function Leaderboard() {
       .get('/api/scores/leaderboard', { params, signal: controller.signal })
       .then((r) => setScores(r.data))
       .catch((err) => {
-        if (err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED' || controller.signal.aborted) {
+        if (
+          err?.name === 'CanceledError' ||
+          err?.code === 'ERR_CANCELED' ||
+          controller.signal.aborted
+        ) {
           return;
         }
         setError(err?.response?.data?.error || 'Gagal memuat leaderboard');

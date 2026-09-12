@@ -11,7 +11,8 @@ export default function QuizPlay() {
   const { sessionId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { questions, currentIndex, answers, startedAt, setQuestions, setAnswer, next, prev, mode } = useQuizStore();
+  const { questions, currentIndex, answers, startedAt, setQuestions, setAnswer, next, prev, mode } =
+    useQuizStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -21,9 +22,13 @@ export default function QuizPlay() {
     if (!sessionId) return;
     setLoading(true);
     setError(null);
-    api.get(`/api/sessions/${sessionId}/questions`)
+    api
+      .get(`/api/sessions/${sessionId}/questions`)
       .then((r) => {
-        const sessionMode = (location.state as { mode?: 'topic' | 'challenge' | 'campaign' } | null)?.mode || useQuizStore.getState().mode || 'topic';
+        const sessionMode =
+          (location.state as { mode?: 'topic' | 'challenge' | 'campaign' } | null)?.mode ||
+          useQuizStore.getState().mode ||
+          'topic';
         setQuestions(r.data as ClientQuestion[], sessionMode);
         setLoading(false);
       })
@@ -39,7 +44,10 @@ export default function QuizPlay() {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      const answerArr = questions.map((qq) => ({ questionId: qq.id, answer: answers[qq.id] || {} }));
+      const answerArr = questions.map((qq) => ({
+        questionId: qq.id,
+        answer: answers[qq.id] || {},
+      }));
       await api.post(`/api/sessions/${sessionId}/submit`, { answers: answerArr });
       useQuizStore.getState().reset();
       navigate(`/result/${sessionId}`);
@@ -51,7 +59,12 @@ export default function QuizPlay() {
   }, [submitting, questions, answers, sessionId, navigate]);
 
   if (loading) return <div className="p-8">Memuat...</div>;
-  if (error) return <div role="alert" className="p-8 text-red-600">{error}</div>;
+  if (error)
+    return (
+      <div role="alert" className="p-8 text-red-600">
+        {error}
+      </div>
+    );
   if (questions.length === 0) return <div className="p-8">Topik belum punya soal.</div>;
 
   const challengeSeconds = mode === 'challenge' ? Math.min(questions.length * 60, 600) : 0;
@@ -67,10 +80,17 @@ export default function QuizPlay() {
         <ProgressBar current={currentIndex} total={questions.length} />
         <div className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-xl font-semibold mb-4">{q.prompt}</h2>
-          <QuestionRenderer question={q} initialAnswer={answers[q.id]} onAnswer={(a) => setAnswer(q.id, a)} />
+          <QuestionRenderer
+            question={q}
+            initialAnswer={answers[q.id]}
+            onAnswer={(a) => setAnswer(q.id, a)}
+          />
         </div>
         {submitError && (
-          <div role="alert" className="mt-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm">
+          <div
+            role="alert"
+            className="mt-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm"
+          >
             {submitError}
           </div>
         )}
@@ -91,10 +111,7 @@ export default function QuizPlay() {
               {submitting ? 'Mengirim...' : 'Selesai & Submit'}
             </button>
           ) : (
-            <button
-              onClick={next}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg"
-            >
+            <button onClick={next} className="px-6 py-2 bg-blue-600 text-white rounded-lg">
               Berikutnya
             </button>
           )}

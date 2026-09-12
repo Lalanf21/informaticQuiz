@@ -80,7 +80,7 @@ describe('Campaign mode', () => {
       render(
         <MemoryRouter>
           <Campaign />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(mockedNavigate).toHaveBeenCalledWith('/');
@@ -92,7 +92,7 @@ describe('Campaign mode', () => {
       render(
         <MemoryRouter>
           <Campaign />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -109,7 +109,7 @@ describe('Campaign mode', () => {
       render(
         <MemoryRouter>
           <Campaign />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -132,7 +132,7 @@ describe('Campaign mode', () => {
       render(
         <MemoryRouter>
           <Campaign />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -161,7 +161,7 @@ describe('Campaign mode', () => {
       render(
         <MemoryRouter>
           <Campaign />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -180,7 +180,7 @@ describe('Campaign mode', () => {
       render(
         <MemoryRouter>
           <Campaign />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -200,7 +200,7 @@ describe('Campaign mode', () => {
           <Routes>
             <Route path="/campaign/:topicId/:n" element={<CampaignLevel />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(mockedNavigate).toHaveBeenCalledWith('/');
@@ -214,7 +214,7 @@ describe('Campaign mode', () => {
           <Routes>
             <Route path="/campaign/:topicId/:n" element={<CampaignLevel />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(mockedNavigate).toHaveBeenCalledWith('/campaign');
@@ -228,7 +228,7 @@ describe('Campaign mode', () => {
           <Routes>
             <Route path="/campaign/:topicId/:n" element={<CampaignLevel />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(mockedNavigate).toHaveBeenCalledWith('/campaign');
@@ -245,7 +245,7 @@ describe('Campaign mode', () => {
           <Routes>
             <Route path="/campaign/:topicId/:n" element={<CampaignLevel />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(screen.getByText('Memuat level...')).toBeInTheDocument();
@@ -275,7 +275,7 @@ describe('Campaign mode', () => {
       render(
         <MemoryRouter initialEntries={['/campaign']}>
           <App />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -290,7 +290,7 @@ describe('Campaign mode', () => {
       render(
         <MemoryRouter initialEntries={['/campaign/1/1']}>
           <App />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -313,7 +313,7 @@ describe('Campaign mode', () => {
       const { unmount } = render(
         <MemoryRouter>
           <Campaign />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
@@ -350,12 +350,14 @@ describe('Campaign mode', () => {
           <Routes>
             <Route path="/result/:sessionId" element={<Result />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {
         expect(screen.getByText('85%')).toBeInTheDocument();
-        expect(screen.getByText(/Selamat! Kamu berhasil membuka level berikutnya!/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Selamat! Kamu berhasil membuka level berikutnya!/i),
+        ).toBeInTheDocument();
       });
 
       expect(getProgress(1)).toBe(2);
@@ -366,7 +368,7 @@ describe('Campaign mode', () => {
       render(
         <MemoryRouter>
           <Campaign />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       await waitFor(() => {

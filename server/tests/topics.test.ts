@@ -19,14 +19,30 @@ describe('GET /api/topics', () => {
   });
 
   it('returns all topics ordered by name', async () => {
-    db.prepare('INSERT INTO topics (name, grade, description) VALUES (?, ?, ?)').run('Zebra Topic', 7, 'Desc 1');
-    db.prepare('INSERT INTO topics (name, grade, description) VALUES (?, ?, ?)').run('Alpha Topic', 8, 'Desc 2');
-    db.prepare('INSERT INTO topics (name, grade, description) VALUES (?, ?, ?)').run('Beta Topic', 7, 'Desc 3');
+    db.prepare('INSERT INTO topics (name, grade, description) VALUES (?, ?, ?)').run(
+      'Zebra Topic',
+      7,
+      'Desc 1',
+    );
+    db.prepare('INSERT INTO topics (name, grade, description) VALUES (?, ?, ?)').run(
+      'Alpha Topic',
+      8,
+      'Desc 2',
+    );
+    db.prepare('INSERT INTO topics (name, grade, description) VALUES (?, ?, ?)').run(
+      'Beta Topic',
+      7,
+      'Desc 3',
+    );
 
     const res = await request(app).get('/api/topics');
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(3);
-    expect(res.body.map((t: { name: string }) => t.name)).toEqual(['Alpha Topic', 'Beta Topic', 'Zebra Topic']);
+    expect(res.body.map((t: { name: string }) => t.name)).toEqual([
+      'Alpha Topic',
+      'Beta Topic',
+      'Zebra Topic',
+    ]);
   });
 
   it('filters topics by grade query param', async () => {
@@ -37,7 +53,10 @@ describe('GET /api/topics', () => {
     const res = await request(app).get('/api/topics?grade=7');
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(2);
-    expect(res.body.map((t: { name: string }) => t.name)).toEqual(['Jaringan Komputer', 'Perangkat Keras']);
+    expect(res.body.map((t: { name: string }) => t.name)).toEqual([
+      'Jaringan Komputer',
+      'Perangkat Keras',
+    ]);
     expect(res.body.every((t: { grade: number }) => t.grade === 7)).toBe(true);
   });
 

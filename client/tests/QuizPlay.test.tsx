@@ -33,7 +33,14 @@ const mockQuestions: ClientQuestion[] = [
     id: 101,
     type: 'pg',
     prompt: 'Apa kepanjangan dari CPU?',
-    payload: { options: ['Central Processing Unit', 'Computer Personal Unit', 'Central Port Unit', 'Control Program Unit'] },
+    payload: {
+      options: [
+        'Central Processing Unit',
+        'Computer Personal Unit',
+        'Central Port Unit',
+        'Control Program Unit',
+      ],
+    },
     points: 10,
   },
   {
@@ -93,13 +100,17 @@ describe('QuizPlay page', () => {
         <Routes>
           <Route path="/quiz/:sessionId" element={<QuizPlay />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
   };
 
   it('shows loading state initially while fetching questions', () => {
     let resolveGet: any;
-    vi.mocked(api.get).mockReturnValue(new Promise((res) => { resolveGet = res; }));
+    vi.mocked(api.get).mockReturnValue(
+      new Promise((res) => {
+        resolveGet = res;
+      }),
+    );
 
     renderQuizPlay();
     expect(screen.getByText('Memuat...')).toBeInTheDocument();
@@ -202,7 +213,9 @@ describe('QuizPlay page', () => {
 
   it('prevents double-submitting while submit request is in flight', async () => {
     let resolvePost: any;
-    const postPromise = new Promise((res) => { resolvePost = res; });
+    const postPromise = new Promise((res) => {
+      resolvePost = res;
+    });
     vi.mocked(api.post).mockReturnValue(postPromise as any);
 
     renderQuizPlay();
@@ -248,7 +261,9 @@ describe('QuizPlay page', () => {
     const submitBtn = screen.getByRole('button', { name: 'Selesai & Submit' });
     fireEvent.click(submitBtn);
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Gagal mengirim jawaban. Silakan coba lagi.');
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Gagal mengirim jawaban. Silakan coba lagi.',
+    );
     expect(submitBtn).not.toBeDisabled();
     expect(mockedNavigate).not.toHaveBeenCalled();
   });
@@ -257,7 +272,7 @@ describe('QuizPlay page', () => {
     render(
       <MemoryRouter initialEntries={['/quiz/session-999']}>
         <App />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(await screen.findByText('Apa kepanjangan dari CPU?')).toBeInTheDocument();

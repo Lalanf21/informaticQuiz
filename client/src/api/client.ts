@@ -1,7 +1,9 @@
 import axios from 'axios';
 import { useAdminStore } from '../stores/useAdminStore';
 
-export const api = axios.create({ baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001' });
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
+});
 
 api.interceptors.response.use(
   (r) => r,

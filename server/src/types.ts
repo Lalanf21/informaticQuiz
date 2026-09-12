@@ -3,11 +3,23 @@ export type Grade = 7 | 8 | 9;
 export type Mode = 'topic' | 'challenge' | 'campaign';
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
-export interface PgData { options: string[]; correctIndex: number; }
-export interface TfData { correctAnswer: boolean; }
-export interface MatchingPair { left: string; right: string; }
-export interface MatchingData { pairs: MatchingPair[]; }
-export interface OrderingData { correctOrder: string[]; }
+export interface PgData {
+  options: string[];
+  correctIndex: number;
+}
+export interface TfData {
+  correctAnswer: boolean;
+}
+export interface MatchingPair {
+  left: string;
+  right: string;
+}
+export interface MatchingData {
+  pairs: MatchingPair[];
+}
+export interface OrderingData {
+  correctOrder: string[];
+}
 export type QuestionData = PgData | TfData | MatchingData | OrderingData;
 
 export interface Question {

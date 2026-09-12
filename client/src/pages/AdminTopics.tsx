@@ -37,12 +37,16 @@ export default function AdminTopics() {
       await api.post(
         '/api/admin/topics',
         { name, grade },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       setName('');
       load();
     } catch (err: any) {
-      setError(err.response?.data?.details?.[0]?.message || err.response?.data?.error || 'Gagal tambah topik');
+      setError(
+        err.response?.data?.details?.[0]?.message ||
+          err.response?.data?.error ||
+          'Gagal tambah topik',
+      );
     }
   };
 
@@ -50,9 +54,11 @@ export default function AdminTopics() {
     if (!window.confirm('Yakin ingin menghapus?')) return;
     setError('');
     try {
-      await api.delete(`/api/admin/topics/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      await api.delete(`/api/admin/topics/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       load();
-    } catch (err: any) {
+    } catch {
       setError('Gagal hapus topik');
     }
   };

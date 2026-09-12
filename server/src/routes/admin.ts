@@ -12,7 +12,10 @@ adminRouter.use(authJwt);
 
 const TopicSchema = z.object({
   name: z.string().min(1),
-  grade: z.number().int().refine((g) => [7, 8, 9].includes(g)),
+  grade: z
+    .number()
+    .int()
+    .refine((g) => [7, 8, 9].includes(g)),
   description: z.string().optional(),
 });
 
@@ -39,12 +42,9 @@ adminRouter.post('/topics', validateBody(TopicSchema), (req, res) => {
 
 adminRouter.put('/topics/:id', validateBody(TopicSchema), (req, res, next) => {
   try {
-    const result = db.prepare('UPDATE topics SET name=?, grade=?, description=? WHERE id=?').run(
-      req.body.name,
-      req.body.grade,
-      req.body.description || null,
-      Number(req.params.id)
-    );
+    const result = db
+      .prepare('UPDATE topics SET name=?, grade=?, description=? WHERE id=?')
+      .run(req.body.name, req.body.grade, req.body.description || null, Number(req.params.id));
     if (result.changes === 0) {
       throw new ApiError(404, 'NOT_FOUND');
     }
@@ -86,7 +86,7 @@ adminRouter.post('/questions', validateBody(QuestionSchema), (req: AuthedRequest
     validateQuestionData(req.body.type, req.body.data);
     const r = db
       .prepare(
-        'INSERT INTO questions (topic_id, type, prompt, data, difficulty, points, created_by) VALUES (?,?,?,?,?,?,?)'
+        'INSERT INTO questions (topic_id, type, prompt, data, difficulty, points, created_by) VALUES (?,?,?,?,?,?,?)',
       )
       .run(
         req.body.topicId,
@@ -95,7 +95,7 @@ adminRouter.post('/questions', validateBody(QuestionSchema), (req: AuthedRequest
         JSON.stringify(req.body.data),
         req.body.difficulty || null,
         req.body.points,
-        req.user!.id
+        req.user!.id,
       );
     res.status(201).json({ id: r.lastInsertRowid });
   } catch (e) {
@@ -106,17 +106,19 @@ adminRouter.post('/questions', validateBody(QuestionSchema), (req: AuthedRequest
 adminRouter.put('/questions/:id', validateBody(QuestionSchema), (req: AuthedRequest, res, next) => {
   try {
     validateQuestionData(req.body.type, req.body.data);
-    const result = db.prepare(
-      'UPDATE questions SET topic_id=?, type=?, prompt=?, data=?, difficulty=?, points=? WHERE id=?'
-    ).run(
-      req.body.topicId,
-      req.body.type,
-      req.body.prompt,
-      JSON.stringify(req.body.data),
-      req.body.difficulty || null,
-      req.body.points,
-      Number(req.params.id)
-    );
+    const result = db
+      .prepare(
+        'UPDATE questions SET topic_id=?, type=?, prompt=?, data=?, difficulty=?, points=? WHERE id=?',
+      )
+      .run(
+        req.body.topicId,
+        req.body.type,
+        req.body.prompt,
+        JSON.stringify(req.body.data),
+        req.body.difficulty || null,
+        req.body.points,
+        Number(req.params.id),
+      );
     if (result.changes === 0) {
       throw new ApiError(404, 'NOT_FOUND');
     }

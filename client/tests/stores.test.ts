@@ -211,7 +211,9 @@ describe('useAdminStore', () => {
   });
 
   it('clears credentials on logout', () => {
-    useAdminStore.getState().setAuth('mock-jwt-token', { id: 2, username: 'guru2', name: 'Bu Guru' });
+    useAdminStore
+      .getState()
+      .setAuth('mock-jwt-token', { id: 2, username: 'guru2', name: 'Bu Guru' });
     useAdminStore.getState().logout();
 
     const state = useAdminStore.getState();

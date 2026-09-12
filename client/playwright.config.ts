@@ -6,7 +6,8 @@ export default defineConfig({
   use: { baseURL: 'http://localhost:5173' },
   webServer: [
     {
-      command: 'npm run db:migrate --prefix ../server && npm run db:seed --prefix ../server && npm run dev --prefix ../server',
+      command:
+        'npm run db:migrate --prefix ../server && npm run db:seed --prefix ../server && npm run dev --prefix ../server',
       port: 3001,
       reuseExistingServer: true,
     },

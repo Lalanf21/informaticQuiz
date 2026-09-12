@@ -7,7 +7,8 @@ import type { Topic } from '../types';
 const DEFAULT_JSON_TEMPLATES: Record<'pg' | 'tf' | 'matching' | 'ordering', string> = {
   pg: '{"options":["A","B","C","D"],"correctIndex":0}',
   tf: '{"correctAnswer":true}',
-  matching: '{"pairs":[{"left":"Istilah 1","right":"Definisi 1"},{"left":"Istilah 2","right":"Definisi 2"}]}',
+  matching:
+    '{"pairs":[{"left":"Istilah 1","right":"Definisi 1"},{"left":"Istilah 2","right":"Definisi 2"}]}',
   ordering: '{"correctOrder":["Langkah 1","Langkah 2","Langkah 3"]}',
 };
 
@@ -73,16 +74,18 @@ export default function AdminQuestions() {
       return;
     }
     try {
-      const { dataStr, ...payload } = form;
+      const { dataStr: _dataStr, ...payload } = form;
       await api.post(
         '/api/admin/questions',
         { ...payload, data },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       setForm((f) => ({ ...f, prompt: '', dataStr: DEFAULT_JSON_TEMPLATES[f.type] }));
       load();
     } catch (err: any) {
-      setError(err.response?.data?.details?.[0]?.message || err.response?.data?.error || 'Gagal simpan');
+      setError(
+        err.response?.data?.details?.[0]?.message || err.response?.data?.error || 'Gagal simpan',
+      );
     }
   };
 
@@ -90,9 +93,11 @@ export default function AdminQuestions() {
     if (!window.confirm('Yakin ingin menghapus?')) return;
     setError('');
     try {
-      await api.delete(`/api/admin/questions/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      await api.delete(`/api/admin/questions/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       load();
-    } catch (err: any) {
+    } catch {
       setError('Gagal hapus soal');
     }
   };

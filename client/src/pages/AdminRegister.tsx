@@ -15,7 +15,12 @@ export default function AdminRegister() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await api.post('/api/admin/register', { username, password, name, registrationKey: regKey });
+      const res = await api.post('/api/admin/register', {
+        username,
+        password,
+        name,
+        registrationKey: regKey,
+      });
       setAuth(res.data.token, res.data.teacher);
       navigate('/admin/questions');
     } catch (err: any) {

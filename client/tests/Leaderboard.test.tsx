@@ -47,7 +47,7 @@ describe('Leaderboard page', () => {
         <Routes>
           <Route path="/leaderboard" element={<Leaderboard />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
   };
 
@@ -231,7 +231,7 @@ describe('Leaderboard page', () => {
     render(
       <MemoryRouter initialEntries={['/leaderboard']}>
         <App />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => {

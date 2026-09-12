@@ -59,8 +59,8 @@ export default function MatchingQuestion({ pairs, rights, initialAnswer, onAnswe
                 selectedLeft === l
                   ? 'bg-yellow-200 border-yellow-500'
                   : mapping[l]
-                  ? 'bg-green-50'
-                  : 'bg-white'
+                    ? 'bg-green-50'
+                    : 'bg-white'
               }`}
             >
               {l} {mapping[l] && <span className="text-xs text-gray-500">→ {mapping[l]}</span>}

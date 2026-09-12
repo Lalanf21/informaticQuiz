@@ -8,29 +8,29 @@
 
 ## Fitur / Features
 
-| Fitur | Feature |
-|---|---|
-| Input nama + kelas tanpa akun | Name + class input, no account needed |
-| 4 jenis soal: PG, True/False, Matching, Ordering | 4 question types: MC, T/F, Matching, Ordering |
-| Mode latihan per topik | Practice mode per topic |
-| Mode tantang dengan timer + skor | Challenge mode with timer + scoring |
-| Mode campaign dengan level progress | Campaign mode with level progression |
-| Leaderboard dengan filter mode/kelas/topik | Leaderboard with mode/grade/topic filters |
-| Skor tersimpan otomatis ke SQLite (server-side scoring) | Scores auto-saved to SQLite (server-side) |
-| Dashboard guru: CRUD soal & topik (multi-guru) | Teacher dashboard: question & topic CRUD |
-| Autentikasi guru dengan kode registrasi | Teacher auth with registration key |
+| Fitur                                                   | Feature                                       |
+| ------------------------------------------------------- | --------------------------------------------- |
+| Input nama + kelas tanpa akun                           | Name + class input, no account needed         |
+| 4 jenis soal: PG, True/False, Matching, Ordering        | 4 question types: MC, T/F, Matching, Ordering |
+| Mode latihan per topik                                  | Practice mode per topic                       |
+| Mode tantang dengan timer + skor                        | Challenge mode with timer + scoring           |
+| Mode campaign dengan level progress                     | Campaign mode with level progression          |
+| Leaderboard dengan filter mode/kelas/topik              | Leaderboard with mode/grade/topic filters     |
+| Skor tersimpan otomatis ke SQLite (server-side scoring) | Scores auto-saved to SQLite (server-side)     |
+| Dashboard guru: CRUD soal & topik (multi-guru)          | Teacher dashboard: question & topic CRUD      |
+| Autentikasi guru dengan kode registrasi                 | Teacher auth with registration key            |
 
 ---
 
 ## Tech Stack
 
-| Lapisan / Layer | Teknologi / Technology |
-|---|---|
-| Frontend | React 18, Vite, TypeScript, react-router, Tailwind CSS, zustand, @dnd-kit |
-| Backend | Express.js, better-sqlite3, zod, bcrypt, jsonwebtoken, helmet |
-| Database | SQLite (single file: `data/informaticquiz.db`) |
-| Testing | Vitest, supertest, React Testing Library, Playwright |
-| Dev tooling | tsx, concurrently, ESLint, Prettier |
+| Lapisan / Layer | Teknologi / Technology                                                    |
+| --------------- | ------------------------------------------------------------------------- |
+| Frontend        | React 18, Vite, TypeScript, react-router, Tailwind CSS, zustand, @dnd-kit |
+| Backend         | Express.js, better-sqlite3, zod, bcrypt, jsonwebtoken, helmet             |
+| Database        | SQLite (single file: `data/informaticquiz.db`)                            |
+| Testing         | Vitest, supertest, React Testing Library, Playwright                      |
+| Dev tooling     | tsx, concurrently, ESLint, Prettier                                       |
 
 ---
 
@@ -90,6 +90,7 @@ cd ..
 ```
 
 Akun guru demo / Demo teacher account:
+
 - Username: `guru`
 - Password: `guru123`
 - Default Registration Key: `sekolah-bisa` (untuk register akun guru baru)
@@ -101,6 +102,7 @@ npm run dev
 ```
 
 > **Catatan Dynamic Port:** Perintah `npm run dev` menjalankan script runner cerdas (`scripts/dev.js`):
+>
 > 1. Otomatis cek database SQLite (`data/informaticquiz.db`), lakukan migrasi dan seed bila belum ada.
 > 2. Mencari port backend yang tersedia mulai dari 3001 (otomatis increment bila port sedang dipakai).
 > 3. Menunggu backend aktif dan merespons healthcheck.
@@ -166,15 +168,15 @@ informaticQuiz/
 
 7 tabel SQLite (pendekatan single-table polymorphic untuk soal):
 
-| Tabel / Table | Fungsi / Purpose |
-|---|---|
-| `teachers` | Akun guru (username + bcrypt hash) |
-| `topics` | Topik Informatika per kelas (7/8/9) |
-| `questions` | Soal polymorphic (`type` + JSON `data`) |
-| `quiz_sessions` | Sesi kuis siswa (UUID, tanpa akun) |
+| Tabel / Table       | Fungsi / Purpose                              |
+| ------------------- | --------------------------------------------- |
+| `teachers`          | Akun guru (username + bcrypt hash)            |
+| `topics`            | Topik Informatika per kelas (7/8/9)           |
+| `questions`         | Soal polymorphic (`type` + JSON `data`)       |
+| `quiz_sessions`     | Sesi kuis siswa (UUID, tanpa akun)            |
 | `session_questions` | Daftar soal per sesi (determinisme + shuffle) |
-| `session_answers` | Jawaban siswa per soal + status benar/salah |
-| `scores` | Skor final (denormalized untuk leaderboard) |
+| `session_answers`   | Jawaban siswa per soal + status benar/salah   |
+| `scores`            | Skor final (denormalized untuk leaderboard)   |
 
 Detail lengkap: `docs/superpowers/specs/2026-09-10-informaticquiz-design.md`
 
@@ -182,23 +184,23 @@ Detail lengkap: `docs/superpowers/specs/2026-09-10-informaticquiz-design.md`
 
 ## Mode Permainan / Game Modes
 
-| Mode | Deskripsi / Description |
-|---|---|
-| **Latihan Topik** | Pilih topik → kerjakan 10-20 soal → lihat skor |
-| **Tantangan** | Soal acak lintas topik + timer (60 dtk/soal, maks 10 menit) |
-| **Campaign** | Level 1-3 per topik (easy→medium→hard), unlock level berikutnya setelah lulus (≥70%) |
-| **Leaderboard** | Ranking semua siswa, filter mode/kelas/topik |
+| Mode              | Deskripsi / Description                                                              |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| **Latihan Topik** | Pilih topik → kerjakan 10-20 soal → lihat skor                                       |
+| **Tantangan**     | Soal acak lintas topik + timer (60 dtk/soal, maks 10 menit)                          |
+| **Campaign**      | Level 1-3 per topik (easy→medium→hard), unlock level berikutnya setelah lulus (≥70%) |
+| **Leaderboard**   | Ranking semua siswa, filter mode/kelas/topik                                         |
 
 ---
 
 ## Jenis Soal / Question Types
 
-| Type | Format JSON `data` |
-|---|---|
-| `pg` (Pilihan Ganda) | `{ "options": ["a","b","c","d"], "correctIndex": 2 }` |
-| `tf` (True/False) | `{ "correctAnswer": true }` |
-| `matching` | `{ "pairs": [{ "left": "HTTP", "right": "Protokol web" }] }` |
-| `ordering` | `{ "correctOrder": ["Mulai", "Proses", "Output", "Selesai"] }` |
+| Type                 | Format JSON `data`                                             |
+| -------------------- | -------------------------------------------------------------- |
+| `pg` (Pilihan Ganda) | `{ "options": ["a","b","c","d"], "correctIndex": 2 }`          |
+| `tf` (True/False)    | `{ "correctAnswer": true }`                                    |
+| `matching`           | `{ "pairs": [{ "left": "HTTP", "right": "Protokol web" }] }`   |
+| `ordering`           | `{ "correctOrder": ["Mulai", "Proses", "Output", "Selesai"] }` |
 
 ---
 
@@ -220,22 +222,38 @@ cd client && npm run test:e2e
 
 ---
 
+## Lint & Format
+
+```bash
+# ESLint (flat config, typescript-eslint) — per folder
+npm run lint --prefix server
+npm run lint --prefix client
+
+# Prettier (config di root: .prettierrc.json)
+npm run format --prefix server   # tulis ulang + rapikan
+npm run format --prefix client
+npm run format:check --prefix server  # cek saja (CI)
+npm run format:check --prefix client
+```
+
+---
+
 ## Variabel Environment / Environment Variables
 
 ### `server/.env`
 
-| Variabel | Default | Keterangan / Description |
-|---|---|---|
-| `PORT` | `3001` | Port server |
-| `JWT_SECRET` | — | Secret untuk JWT admin (wajib ganti di production) |
-| `REGISTRATION_KEY` | — | Kode untuk mendaftar akun guru |
-| `DATABASE_PATH` | `../data/informaticquiz.db` | Path file SQLite |
+| Variabel           | Default                     | Keterangan / Description                           |
+| ------------------ | --------------------------- | -------------------------------------------------- |
+| `PORT`             | `3001`                      | Port server                                        |
+| `JWT_SECRET`       | —                           | Secret untuk JWT admin (wajib ganti di production) |
+| `REGISTRATION_KEY` | —                           | Kode untuk mendaftar akun guru                     |
+| `DATABASE_PATH`    | `../data/informaticquiz.db` | Path file SQLite                                   |
 
 ### `client/.env`
 
-| Variabel | Default | Keterangan / Description |
-|---|---|---|
-| `VITE_API_URL` | `http://localhost:3001` | URL backend API |
+| Variabel       | Default                 | Keterangan / Description |
+| -------------- | ----------------------- | ------------------------ |
+| `VITE_API_URL` | `http://localhost:3001` | URL backend API          |
 
 ---
 
@@ -286,13 +304,13 @@ Kontribusi terbuka! Silakan:
 
 ### Konvensi commit / Commit conventions
 
-| Prefix | Untuk / For |
-|---|---|
-| `feat:` | Fitur baru / New feature |
-| `fix:` | Perbaikan bug / Bug fix |
-| `chore:` | Setup, config, maintenance |
-| `docs:` | Dokumentasi / Documentation |
-| `test:` | Penambahan/perbaikan test |
+| Prefix   | Untuk / For                 |
+| -------- | --------------------------- |
+| `feat:`  | Fitur baru / New feature    |
+| `fix:`   | Perbaikan bug / Bug fix     |
+| `chore:` | Setup, config, maintenance  |
+| `docs:`  | Dokumentasi / Documentation |
+| `test:`  | Penambahan/perbaikan test   |
 
 ---
 

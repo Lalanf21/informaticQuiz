@@ -5,7 +5,10 @@ export interface GradeResult {
   pointsEarned: number;
 }
 
-export function gradeQuestion(question: Question, studentAnswer: Record<string, unknown>): GradeResult {
+export function gradeQuestion(
+  question: Question,
+  studentAnswer: Record<string, unknown>,
+): GradeResult {
   if (!studentAnswer || typeof studentAnswer !== 'object') {
     return { isCorrect: false, pointsEarned: 0 };
   }

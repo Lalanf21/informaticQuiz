@@ -15,16 +15,34 @@ beforeEach(() => {
   db.prepare('INSERT INTO topics (id, name, grade) VALUES (?, ?, ?)').run(1, 'Algoritma', 7);
   db.prepare('INSERT INTO topics (id, name, grade) VALUES (?, ?, ?)').run(2, 'Jaringan', 8);
 
-  db.prepare('INSERT INTO quiz_sessions (id, student_name, grade, mode) VALUES (?,?,?,?)').run('s1', 'Andi', 7, 'topic');
-  db.prepare('INSERT INTO quiz_sessions (id, student_name, grade, mode) VALUES (?,?,?,?)').run('s2', 'Budi', 7, 'topic');
-  db.prepare('INSERT INTO quiz_sessions (id, student_name, grade, mode) VALUES (?,?,?,?)').run('s3', 'Citra', 8, 'challenge');
+  db.prepare('INSERT INTO quiz_sessions (id, student_name, grade, mode) VALUES (?,?,?,?)').run(
+    's1',
+    'Andi',
+    7,
+    'topic',
+  );
+  db.prepare('INSERT INTO quiz_sessions (id, student_name, grade, mode) VALUES (?,?,?,?)').run(
+    's2',
+    'Budi',
+    7,
+    'topic',
+  );
+  db.prepare('INSERT INTO quiz_sessions (id, student_name, grade, mode) VALUES (?,?,?,?)').run(
+    's3',
+    'Citra',
+    8,
+    'challenge',
+  );
 
-  db.prepare('INSERT INTO scores (session_id, student_name, grade, topic_id, mode, total_points, max_points, percentage) VALUES (?,?,?,?,?,?,?,?)')
-    .run('s1', 'Andi', 7, 1, 'topic', 90, 100, 90);
-  db.prepare('INSERT INTO scores (session_id, student_name, grade, topic_id, mode, total_points, max_points, percentage) VALUES (?,?,?,?,?,?,?,?)')
-    .run('s2', 'Budi', 7, 1, 'topic', 70, 100, 70);
-  db.prepare('INSERT INTO scores (session_id, student_name, grade, topic_id, mode, total_points, max_points, percentage) VALUES (?,?,?,?,?,?,?,?)')
-    .run('s3', 'Citra', 8, null, 'challenge', 95, 100, 95);
+  db.prepare(
+    'INSERT INTO scores (session_id, student_name, grade, topic_id, mode, total_points, max_points, percentage) VALUES (?,?,?,?,?,?,?,?)',
+  ).run('s1', 'Andi', 7, 1, 'topic', 90, 100, 90);
+  db.prepare(
+    'INSERT INTO scores (session_id, student_name, grade, topic_id, mode, total_points, max_points, percentage) VALUES (?,?,?,?,?,?,?,?)',
+  ).run('s2', 'Budi', 7, 1, 'topic', 70, 100, 70);
+  db.prepare(
+    'INSERT INTO scores (session_id, student_name, grade, topic_id, mode, total_points, max_points, percentage) VALUES (?,?,?,?,?,?,?,?)',
+  ).run('s3', 'Citra', 8, null, 'challenge', 95, 100, 95);
 });
 
 afterEach(() => {

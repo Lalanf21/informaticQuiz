@@ -82,9 +82,7 @@ export default function Campaign() {
             return (
               <div key={t.id} className="mb-6 bg-white p-6 rounded-xl shadow">
                 <h2 className="text-lg font-semibold text-gray-800 mb-1">{t.name}</h2>
-                {t.description && (
-                  <p className="text-sm text-gray-500 mb-4">{t.description}</p>
-                )}
+                {t.description && <p className="text-sm text-gray-500 mb-4">{t.description}</p>}
                 <div className="flex gap-3">
                   {[1, 2, 3].map((lvl) => {
                     const isUnlocked = lvl <= unlocked;

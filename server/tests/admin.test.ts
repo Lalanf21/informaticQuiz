@@ -21,18 +21,24 @@ let topicId: number;
 
 beforeEach(async () => {
   migrate();
-  db.exec('DELETE FROM session_answers; DELETE FROM session_questions; DELETE FROM scores; DELETE FROM quiz_sessions; DELETE FROM questions; DELETE FROM topics; DELETE FROM teachers;');
+  db.exec(
+    'DELETE FROM session_answers; DELETE FROM session_questions; DELETE FROM scores; DELETE FROM quiz_sessions; DELETE FROM questions; DELETE FROM topics; DELETE FROM teachers;',
+  );
   const r = await request(app)
     .post('/api/admin/register')
     .send({ username: 'guru', password: 'pass123', registrationKey: 'test-key' });
   token = r.body.token;
 
-  const topicInsert = db.prepare('INSERT INTO topics (name, grade, description) VALUES (?,?,?)').run('Algoritma', 7, 'Dasar Algoritma');
+  const topicInsert = db
+    .prepare('INSERT INTO topics (name, grade, description) VALUES (?,?,?)')
+    .run('Algoritma', 7, 'Dasar Algoritma');
   topicId = Number(topicInsert.lastInsertRowid);
 });
 
 afterEach(() => {
-  db.exec('DELETE FROM session_answers; DELETE FROM session_questions; DELETE FROM scores; DELETE FROM quiz_sessions; DELETE FROM questions; DELETE FROM topics; DELETE FROM teachers;');
+  db.exec(
+    'DELETE FROM session_answers; DELETE FROM session_questions; DELETE FROM scores; DELETE FROM quiz_sessions; DELETE FROM questions; DELETE FROM topics; DELETE FROM teachers;',
+  );
 });
 
 describe('POST /api/admin/questions (auth required)', () => {
@@ -75,9 +81,7 @@ describe('POST /api/admin/questions (auth required)', () => {
 
 describe('CRUD topics', () => {
   it('lists topics', async () => {
-    const res = await request(app)
-      .get('/api/admin/topics')
-      .set('Authorization', `Bearer ${token}`);
+    const res = await request(app).get('/api/admin/topics').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
     expect(res.body.length).toBe(1);
     expect(res.body[0].name).toBe('Algoritma');
@@ -153,7 +157,7 @@ describe('CRUD topics', () => {
 
   it('returns 409 TOPIC_IN_USE when deleting a topic referenced by active sessions or scores', async () => {
     db.prepare(
-      'INSERT INTO quiz_sessions (id, student_name, grade, mode, topic_id) VALUES (?,?,?,?,?)'
+      'INSERT INTO quiz_sessions (id, student_name, grade, mode, topic_id) VALUES (?,?,?,?,?)',
     ).run('session-active', 'Budi', 7, 'topic', topicId);
 
     const res = await request(app)

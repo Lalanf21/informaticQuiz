@@ -47,13 +47,16 @@ export const useQuizStore = create<QuizState>()(
             mode,
           };
         }),
-      setAnswer: (questionId, answer) => set((s) => ({ answers: { ...s.answers, [questionId]: answer } })),
+      setAnswer: (questionId, answer) =>
+        set((s) => ({ answers: { ...s.answers, [questionId]: answer } })),
       next: () =>
         set((s) => ({
-          currentIndex: s.questions.length > 0 ? Math.min(s.currentIndex + 1, s.questions.length - 1) : 0,
+          currentIndex:
+            s.questions.length > 0 ? Math.min(s.currentIndex + 1, s.questions.length - 1) : 0,
         })),
       prev: () => set((s) => ({ currentIndex: Math.max(s.currentIndex - 1, 0) })),
-      reset: () => set({ questions: [], currentIndex: 0, answers: {}, startedAt: null, mode: null }),
+      reset: () =>
+        set({ questions: [], currentIndex: 0, answers: {}, startedAt: null, mode: null }),
     }),
     { name: 'quiz-storage' },
   ),

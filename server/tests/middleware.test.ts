@@ -22,26 +22,20 @@ describe('middleware', () => {
     });
 
     it('returns 401 UNAUTHORIZED when Authorization header does not start with Bearer ', async () => {
-      const res = await request(app)
-        .get('/protected')
-        .set('Authorization', 'Basic token123');
+      const res = await request(app).get('/protected').set('Authorization', 'Basic token123');
       expect(res.status).toBe(401);
       expect(res.body).toEqual({ error: 'UNAUTHORIZED' });
     });
 
     it('returns 401 INVALID_TOKEN when token is invalid', async () => {
-      const res = await request(app)
-        .get('/protected')
-        .set('Authorization', 'Bearer invalid-token');
+      const res = await request(app).get('/protected').set('Authorization', 'Bearer invalid-token');
       expect(res.status).toBe(401);
       expect(res.body).toEqual({ error: 'INVALID_TOKEN' });
     });
 
     it('authenticates valid token and populates req.user', async () => {
       const token = signJwt({ id: 1, username: 'tester' });
-      const res = await request(app)
-        .get('/protected')
-        .set('Authorization', `Bearer ${token}`);
+      const res = await request(app).get('/protected').set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
       expect(res.body).toEqual({ user: { id: 1, username: 'tester' } });
     });
@@ -61,17 +55,13 @@ describe('middleware', () => {
     app.use(errorHandler);
 
     it('passes valid request body to handler', async () => {
-      const res = await request(app)
-        .post('/validate')
-        .send({ name: 'Alice', age: 30 });
+      const res = await request(app).post('/validate').send({ name: 'Alice', age: 30 });
       expect(res.status).toBe(200);
       expect(res.body).toEqual({ data: { name: 'Alice', age: 30 } });
     });
 
     it('routes validation errors to errorHandler as 400 VALIDATION_ERROR', async () => {
-      const res = await request(app)
-        .post('/validate')
-        .send({ name: 'A', age: -1 });
+      const res = await request(app).post('/validate').send({ name: 'A', age: -1 });
       expect(res.status).toBe(400);
       expect(res.body.error).toBe('VALIDATION_ERROR');
       expect(Array.isArray(res.body.details)).toBe(true);

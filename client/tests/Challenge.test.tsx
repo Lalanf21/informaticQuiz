@@ -33,7 +33,14 @@ const mockQuestions: ClientQuestion[] = [
     id: 201,
     type: 'pg',
     prompt: 'Apa fungsi utama RAM?',
-    payload: { options: ['Menyimpan data sementara', 'Menyimpan data permanen', 'Memproses grafis', 'Menghubungkan internet'] },
+    payload: {
+      options: [
+        'Menyimpan data sementara',
+        'Menyimpan data permanen',
+        'Memproses grafis',
+        'Menghubungkan internet',
+      ],
+    },
     points: 10,
   },
   {
@@ -63,7 +70,7 @@ describe('Challenge mode', () => {
       render(
         <MemoryRouter>
           <Challenge />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(mockedNavigate).toHaveBeenCalledWith('/');
@@ -76,7 +83,7 @@ describe('Challenge mode', () => {
       render(
         <MemoryRouter>
           <Challenge />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(screen.getByRole('heading', { name: 'Mode Tantangan' })).toBeInTheDocument();
@@ -89,7 +96,10 @@ describe('Challenge mode', () => {
       expect(screen.getByRole('option', { name: '15 soal' })).toBeInTheDocument();
 
       expect(screen.getByRole('button', { name: 'Mulai Tantangan' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Kembali ke Pilih Topik' })).toHaveAttribute('href', '/topics');
+      expect(screen.getByRole('link', { name: 'Kembali ke Pilih Topik' })).toHaveAttribute(
+        'href',
+        '/topics',
+      );
     });
 
     it('allows student to change question count', () => {
@@ -98,7 +108,7 @@ describe('Challenge mode', () => {
       render(
         <MemoryRouter>
           <Challenge />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       const select = screen.getByRole('combobox') as HTMLSelectElement;
@@ -115,7 +125,7 @@ describe('Challenge mode', () => {
       render(
         <MemoryRouter>
           <Challenge />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       const startBtn = screen.getByRole('button', { name: 'Mulai Tantangan' });
@@ -143,7 +153,7 @@ describe('Challenge mode', () => {
       render(
         <MemoryRouter>
           <Challenge />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       const select = screen.getByRole('combobox');
@@ -169,12 +179,16 @@ describe('Challenge mode', () => {
     it('disables button and displays loading text while session creation is pending', async () => {
       usePlayerStore.setState({ name: 'Andi', grade: 7, sessionId: null });
       let resolvePost: any;
-      vi.mocked(api.post).mockReturnValue(new Promise((res) => { resolvePost = res; }));
+      vi.mocked(api.post).mockReturnValue(
+        new Promise((res) => {
+          resolvePost = res;
+        }),
+      );
 
       render(
         <MemoryRouter>
           <Challenge />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       const startBtn = screen.getByRole('button', { name: 'Mulai Tantangan' });
@@ -204,14 +218,14 @@ describe('Challenge mode', () => {
       render(
         <MemoryRouter>
           <Challenge />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       const startBtn = screen.getByRole('button', { name: 'Mulai Tantangan' });
       fireEvent.click(startBtn);
 
       expect(await screen.findByRole('alert')).toHaveTextContent(
-        'Gagal memulai tantangan. Silakan coba lagi.'
+        'Gagal memulai tantangan. Silakan coba lagi.',
       );
       expect(startBtn).not.toBeDisabled();
       expect(startBtn).toHaveTextContent('Mulai Tantangan');
@@ -224,7 +238,7 @@ describe('Challenge mode', () => {
       render(
         <MemoryRouter initialEntries={['/challenge']}>
           <App />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(screen.getByRole('heading', { name: 'Mode Tantangan' })).toBeInTheDocument();
@@ -241,7 +255,7 @@ describe('Challenge mode', () => {
           <Routes>
             <Route path="/quiz/:sessionId" element={<QuizPlay />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       // 2 questions * 60 = 120s -> 2:00
@@ -258,7 +272,7 @@ describe('Challenge mode', () => {
           <Routes>
             <Route path="/quiz/:sessionId" element={<QuizPlay />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(await screen.findByText('Apa fungsi utama RAM?')).toBeInTheDocument();
@@ -283,7 +297,7 @@ describe('Challenge mode', () => {
           <Routes>
             <Route path="/quiz/:sessionId" element={<QuizPlay />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       // 15 questions * 60 = 900s, capped at 600s = 10:00
@@ -302,7 +316,7 @@ describe('Challenge mode', () => {
           <Routes>
             <Route path="/quiz/:sessionId" element={<QuizPlay />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       // Wait for questions to load

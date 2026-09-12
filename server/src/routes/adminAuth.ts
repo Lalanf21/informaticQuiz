@@ -34,52 +34,59 @@ const LoginSchema = z.object({
   password: z.string(),
 });
 
-adminAuthRouter.post('/register', registerLimiter, validateBody(RegisterSchema), async (req, res, next) => {
-  try {
-    const expectedKey = process.env.REGISTRATION_KEY;
-    if (!expectedKey) {
-      throw new ApiError(403, 'INVALID_REGISTRATION_KEY');
+adminAuthRouter.post(
+  '/register',
+  registerLimiter,
+  validateBody(RegisterSchema),
+  async (req, res, next) => {
+    try {
+      const expectedKey = process.env.REGISTRATION_KEY;
+      if (!expectedKey) {
+        throw new ApiError(403, 'INVALID_REGISTRATION_KEY');
+      }
+      const keyBuf = Buffer.from(req.body.registrationKey);
+      const expectedBuf = Buffer.from(expectedKey);
+      if (keyBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(keyBuf, expectedBuf)) {
+        throw new ApiError(403, 'INVALID_REGISTRATION_KEY');
+      }
+      const hash = await bcrypt.hash(req.body.password, 10);
+      const result = db
+        .prepare('INSERT INTO teachers (username, password_hash, name) VALUES (?,?,?)')
+        .run(req.body.username, hash, req.body.name || null);
+      const teacherId = Number(result.lastInsertRowid);
+      const token = signJwt({ id: teacherId, username: req.body.username });
+      res.status(201).json({
+        token,
+        teacher: {
+          id: teacherId,
+          username: req.body.username,
+          name: req.body.name || null,
+        },
+      });
+    } catch (e) {
+      if (e instanceof Error && e.message.includes('UNIQUE')) {
+        next(new ApiError(409, 'USERNAME_TAKEN'));
+        return;
+      }
+      next(e);
     }
-    const keyBuf = Buffer.from(req.body.registrationKey);
-    const expectedBuf = Buffer.from(expectedKey);
-    if (keyBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(keyBuf, expectedBuf)) {
-      throw new ApiError(403, 'INVALID_REGISTRATION_KEY');
-    }
-    const hash = await bcrypt.hash(req.body.password, 10);
-    const result = db.prepare('INSERT INTO teachers (username, password_hash, name) VALUES (?,?,?)').run(
-      req.body.username,
-      hash,
-      req.body.name || null
-    );
-    const teacherId = Number(result.lastInsertRowid);
-    const token = signJwt({ id: teacherId, username: req.body.username });
-    res.status(201).json({
-      token,
-      teacher: {
-        id: teacherId,
-        username: req.body.username,
-        name: req.body.name || null,
-      },
-    });
-  } catch (e) {
-    if (e instanceof Error && e.message.includes('UNIQUE')) {
-      next(new ApiError(409, 'USERNAME_TAKEN'));
-      return;
-    }
-    next(e);
-  }
-});
+  },
+);
 
 adminAuthRouter.post('/login', loginLimiter, validateBody(LoginSchema), async (req, res, next) => {
   try {
-    const teacher = db.prepare('SELECT * FROM teachers WHERE username = ?').get(req.body.username) as
-      | { id: number; username: string; password_hash: string; name: string | null }
-      | undefined;
+    const teacher = db
+      .prepare('SELECT * FROM teachers WHERE username = ?')
+      .get(req.body.username) as
+      { id: number; username: string; password_hash: string; name: string | null } | undefined;
     if (!teacher) throw new ApiError(401, 'INVALID_CREDENTIALS');
     const ok = await bcrypt.compare(req.body.password, teacher.password_hash);
     if (!ok) throw new ApiError(401, 'INVALID_CREDENTIALS');
     const token = signJwt({ id: teacher.id, username: teacher.username });
-    res.json({ token, teacher: { id: teacher.id, username: teacher.username, name: teacher.name } });
+    res.json({
+      token,
+      teacher: { id: teacher.id, username: teacher.username, name: teacher.name },
+    });
   } catch (e) {
     next(e);
   }

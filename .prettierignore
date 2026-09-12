@@ -1,0 +1,11 @@
+node_modules/
+dist/
+data/
+coverage/
+playwright-report/
+test-results/
+.opencode-jce/
+.opencode-context*.md
+.superpowers/
+*.db
+package-lock.json

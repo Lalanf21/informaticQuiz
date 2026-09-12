@@ -25,9 +25,12 @@ afterEach(() => {
 
 describe('POST /api/admin/register', () => {
   it('registers a teacher with correct key', async () => {
-    const res = await request(app)
-      .post('/api/admin/register')
-      .send({ username: 'guru1', password: 'pass123', name: 'Pak Guru', registrationKey: 'test-key' });
+    const res = await request(app).post('/api/admin/register').send({
+      username: 'guru1',
+      password: 'pass123',
+      name: 'Pak Guru',
+      registrationKey: 'test-key',
+    });
     expect(res.status).toBe(201);
     expect(res.body.token).toBeTruthy();
     expect(res.body.teacher).toMatchObject({
@@ -85,9 +88,12 @@ describe('POST /api/admin/register', () => {
 
 describe('POST /api/admin/login', () => {
   it('logs in a registered teacher', async () => {
-    await request(app)
-      .post('/api/admin/register')
-      .send({ username: 'guru1', password: 'pass123', name: 'Pak Guru', registrationKey: 'test-key' });
+    await request(app).post('/api/admin/register').send({
+      username: 'guru1',
+      password: 'pass123',
+      name: 'Pak Guru',
+      registrationKey: 'test-key',
+    });
     const res = await request(app)
       .post('/api/admin/login')
       .send({ username: 'guru1', password: 'pass123' });
@@ -120,9 +126,7 @@ describe('POST /api/admin/login', () => {
   });
 
   it('rejects login with invalid payload', async () => {
-    const res = await request(app)
-      .post('/api/admin/login')
-      .send({ username: 'guru1' });
+    const res = await request(app).post('/api/admin/login').send({ username: 'guru1' });
     expect(res.status).toBe(400);
   });
 

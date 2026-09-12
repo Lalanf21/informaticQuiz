@@ -3,7 +3,9 @@ import { validateQuestionData } from '../src/lib/schemas';
 
 describe('validateQuestionData', () => {
   it('accepts valid pg data', () => {
-    expect(() => validateQuestionData('pg', { options: ['a', 'b'], correctIndex: 0 })).not.toThrow();
+    expect(() =>
+      validateQuestionData('pg', { options: ['a', 'b'], correctIndex: 0 }),
+    ).not.toThrow();
   });
   it('rejects pg with single option', () => {
     expect(() => validateQuestionData('pg', { options: ['a'], correctIndex: 0 })).toThrow();
@@ -23,10 +25,19 @@ describe('validateQuestionData', () => {
     expect(() => validateQuestionData('tf', { correctAnswer: 'true' })).toThrow();
   });
   it('accepts valid matching data', () => {
-    expect(() => validateQuestionData('matching', { pairs: [{ left: 'a', right: 'b' }, { left: 'c', right: 'd' }] })).not.toThrow();
+    expect(() =>
+      validateQuestionData('matching', {
+        pairs: [
+          { left: 'a', right: 'b' },
+          { left: 'c', right: 'd' },
+        ],
+      }),
+    ).not.toThrow();
   });
   it('rejects matching with one pair', () => {
-    expect(() => validateQuestionData('matching', { pairs: [{ left: 'a', right: 'b' }] })).toThrow();
+    expect(() =>
+      validateQuestionData('matching', { pairs: [{ left: 'a', right: 'b' }] }),
+    ).toThrow();
   });
   it('accepts valid ordering data', () => {
     expect(() => validateQuestionData('ordering', { correctOrder: ['a', 'b', 'c'] })).not.toThrow();
@@ -35,6 +46,8 @@ describe('validateQuestionData', () => {
     expect(() => validateQuestionData('ordering', { correctOrder: ['a'] })).toThrow();
   });
   it('rejects unsupported question type', () => {
-    expect(() => validateQuestionData('unknown' as any, {})).toThrow('Invalid question type: unknown');
+    expect(() => validateQuestionData('unknown' as any, {})).toThrow(
+      'Invalid question type: unknown',
+    );
   });
 });

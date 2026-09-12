@@ -24,7 +24,7 @@ describe('QuestionRenderer', () => {
           onAnswer={(a: Record<string, unknown>) => {
             answer = a;
           }}
-        />
+        />,
       );
       fireEvent.click(screen.getByText('Benar'));
       expect(answer).toEqual({ value: true });
@@ -41,7 +41,11 @@ describe('QuestionRenderer', () => {
       };
 
       const { rerender } = render(
-        <QuestionRenderer question={question} initialAnswer={{ value: false }} onAnswer={onAnswer} />
+        <QuestionRenderer
+          question={question}
+          initialAnswer={{ value: false }}
+          onAnswer={onAnswer}
+        />,
       );
 
       const falseBtn = screen.getByRole('button', { name: 'Salah' });
@@ -51,7 +55,11 @@ describe('QuestionRenderer', () => {
       expect(onAnswer).toHaveBeenCalledWith({ value: false });
 
       rerender(
-        <QuestionRenderer question={question} initialAnswer={{ value: true }} onAnswer={onAnswer} />
+        <QuestionRenderer
+          question={question}
+          initialAnswer={{ value: true }}
+          onAnswer={onAnswer}
+        />,
       );
       const trueBtn = screen.getByRole('button', { name: 'Benar' });
       expect(trueBtn.className).toContain('bg-green-500');
@@ -62,9 +70,15 @@ describe('QuestionRenderer', () => {
     it('renders pg question with options', () => {
       const { container } = wrap(
         <QuestionRenderer
-          question={{ id: 2, type: 'pg', prompt: 'Pilih', payload: { options: ['a', 'b'] }, points: 10 }}
+          question={{
+            id: 2,
+            type: 'pg',
+            prompt: 'Pilih',
+            payload: { options: ['a', 'b'] },
+            points: 10,
+          }}
           onAnswer={() => {}}
-        />
+        />,
       );
       expect(container.textContent).toContain('a');
       expect(container.textContent).toContain('b');
@@ -108,7 +122,7 @@ describe('QuestionRenderer', () => {
       };
 
       render(
-        <QuestionRenderer question={question} initialAnswer={{ index: 1 }} onAnswer={onAnswer} />
+        <QuestionRenderer question={question} initialAnswer={{ index: 1 }} onAnswer={onAnswer} />,
       );
 
       const betaBtn = screen.getByRole('button', { name: 'Beta' });
@@ -191,7 +205,7 @@ describe('QuestionRenderer', () => {
           question={question}
           initialAnswer={{ Indonesia: 'Jakarta' }}
           onAnswer={onAnswer}
-        />
+        />,
       );
 
       expect(screen.getByRole('button', { name: /Indonesia.*→ Jakarta/ })).toBeInTheDocument();
@@ -293,7 +307,7 @@ describe('QuestionRenderer', () => {
           question={question}
           initialAnswer={{ order: customOrder }}
           onAnswer={onAnswer}
-        />
+        />,
       );
 
       const items = container.querySelectorAll('.cursor-move');
@@ -346,7 +360,7 @@ describe('QuestionRenderer', () => {
         <QuestionRenderer
           question={{ id: 99, type: 'unknown' as any, prompt: '?', payload: {}, points: 0 }}
           onAnswer={() => {}}
-        />
+        />,
       );
       expect(container.firstChild).toBeNull();
     });

@@ -47,7 +47,7 @@ describe('Topics page', () => {
     render(
       <MemoryRouter>
         <Topics />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(mockedNavigate).toHaveBeenCalledWith('/');
@@ -60,7 +60,7 @@ describe('Topics page', () => {
     render(
       <MemoryRouter>
         <Topics />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getByText('Memuat topik...')).toBeInTheDocument();
@@ -79,7 +79,7 @@ describe('Topics page', () => {
     render(
       <MemoryRouter>
         <Topics />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(await screen.findByText('Tidak ada topik tersedia.')).toBeInTheDocument();
@@ -93,7 +93,7 @@ describe('Topics page', () => {
     render(
       <MemoryRouter>
         <Topics />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Gagal memuat topik');
@@ -108,7 +108,7 @@ describe('Topics page', () => {
     render(
       <MemoryRouter>
         <Topics />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const topicButton = await screen.findByRole('button', { name: /Basis Data/ });
@@ -138,7 +138,7 @@ describe('Topics page', () => {
     render(
       <MemoryRouter>
         <Topics />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const topicButton = await screen.findByRole('button', { name: /Algoritma Pemrograman/ });
@@ -174,14 +174,14 @@ describe('Topics page', () => {
     render(
       <MemoryRouter>
         <Topics />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const topicButton = await screen.findByRole('button', { name: /Algoritma Pemrograman/ });
     fireEvent.click(topicButton);
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Gagal memulai kuis. Silakan coba lagi.'
+      'Gagal memulai kuis. Silakan coba lagi.',
     );
     expect(topicButton).not.toBeDisabled();
     expect(mockedNavigate).not.toHaveBeenCalledWith(expect.stringContaining('/quiz/'));
@@ -193,7 +193,7 @@ describe('Topics page', () => {
     render(
       <MemoryRouter>
         <Topics />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const challengeButton = await screen.findByRole('button', { name: 'Mode Tantangan' });
@@ -208,7 +208,7 @@ describe('Topics page', () => {
     render(
       <MemoryRouter>
         <Topics />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const campaignButton = await screen.findByRole('button', { name: 'Mode Campaign' });
@@ -223,7 +223,7 @@ describe('Topics page', () => {
     render(
       <MemoryRouter>
         <Topics />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const leaderboardButton = await screen.findByRole('button', { name: 'Leaderboard' });
@@ -241,7 +241,7 @@ describe('Topics page', () => {
     render(
       <MemoryRouter initialEntries={['/topics']}>
         <App />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(await screen.findByText('Halo, Siti! Pilih topik:')).toBeInTheDocument();

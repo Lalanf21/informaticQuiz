@@ -42,7 +42,7 @@ describe('Admin Authentication', () => {
       render(
         <MemoryRouter>
           <AdminLogin />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(screen.getByRole('heading', { name: 'Login Guru' })).toBeInTheDocument();
@@ -67,11 +67,13 @@ describe('Admin Authentication', () => {
       render(
         <MemoryRouter>
           <AdminLogin />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'guru1' } });
-      fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'rahasia123' } });
+      fireEvent.change(screen.getByPlaceholderText('Password'), {
+        target: { value: 'rahasia123' },
+      });
       fireEvent.click(screen.getByRole('button', { name: 'Login' }));
 
       await waitFor(() => {
@@ -92,7 +94,7 @@ describe('Admin Authentication', () => {
       render(
         <MemoryRouter>
           <AdminLogin />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'guru1' } });
@@ -113,7 +115,7 @@ describe('Admin Authentication', () => {
       render(
         <MemoryRouter>
           <AdminRegister />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(screen.getByRole('heading', { name: 'Daftar Guru' })).toBeInTheDocument();
@@ -143,13 +145,17 @@ describe('Admin Authentication', () => {
       render(
         <MemoryRouter>
           <AdminRegister />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'newguru' } });
       fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'secret456' } });
-      fireEvent.change(screen.getByPlaceholderText('Nama (opsional)'), { target: { value: 'Bu Sari' } });
-      fireEvent.change(screen.getByPlaceholderText('Kode registrasi'), { target: { value: 'KEY123' } });
+      fireEvent.change(screen.getByPlaceholderText('Nama (opsional)'), {
+        target: { value: 'Bu Sari' },
+      });
+      fireEvent.change(screen.getByPlaceholderText('Kode registrasi'), {
+        target: { value: 'KEY123' },
+      });
       fireEvent.click(screen.getByRole('button', { name: 'Daftar' }));
 
       await waitFor(() => {
@@ -178,12 +184,14 @@ describe('Admin Authentication', () => {
       render(
         <MemoryRouter>
           <AdminRegister />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'newguru' } });
       fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'secret456' } });
-      fireEvent.change(screen.getByPlaceholderText('Kode registrasi'), { target: { value: 'WRONG_KEY' } });
+      fireEvent.change(screen.getByPlaceholderText('Kode registrasi'), {
+        target: { value: 'WRONG_KEY' },
+      });
       fireEvent.click(screen.getByRole('button', { name: 'Daftar' }));
 
       await waitFor(() => {
@@ -202,12 +210,16 @@ describe('Admin Authentication', () => {
       render(
         <MemoryRouter>
           <AdminRegister />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
-      fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'existingguru' } });
+      fireEvent.change(screen.getByPlaceholderText('Username'), {
+        target: { value: 'existingguru' },
+      });
       fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'secret456' } });
-      fireEvent.change(screen.getByPlaceholderText('Kode registrasi'), { target: { value: 'KEY123' } });
+      fireEvent.change(screen.getByPlaceholderText('Kode registrasi'), {
+        target: { value: 'KEY123' },
+      });
       fireEvent.click(screen.getByRole('button', { name: 'Daftar' }));
 
       await waitFor(() => {
@@ -224,7 +236,7 @@ describe('Admin Authentication', () => {
       render(
         <MemoryRouter initialEntries={['/admin/login']}>
           <App />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(screen.getByRole('heading', { name: 'Login Guru' })).toBeInTheDocument();
@@ -234,7 +246,7 @@ describe('Admin Authentication', () => {
       render(
         <MemoryRouter initialEntries={['/admin/register']}>
           <App />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
 
       expect(screen.getByRole('heading', { name: 'Daftar Guru' })).toBeInTheDocument();
