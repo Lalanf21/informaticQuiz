@@ -36,7 +36,7 @@ test('admin can manage topics via CRUD', async ({ page }) => {
   await expect(page).toHaveURL(/\/admin\/questions/);
 
   // Navigate to Kelola Topik
-  await page.click('a:has-text("Kelola Topik")');
+  await page.click('a:has-text("Topik")');
   await expect(page).toHaveURL(/\/admin\/topics/);
   await expect(page.locator('text=Kelola Topik')).toBeVisible();
 

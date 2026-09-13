@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { useAdminStore } from '../stores/useAdminStore';
 import type { Topic } from '../types';
-import { Notice, PageTitle } from '../components/ui';
+import { Notice } from '../components/ui';
+import AdminHeader from '../components/AdminHeader';
 
 const GRADE_TONE: Record<number, string> = { 7: '#2F6BFF', 8: '#12B886', 9: '#FF4D2E' };
 
@@ -69,15 +70,7 @@ export default function AdminTopics() {
   return (
     <div className="min-h-screen bg-paper">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:py-10">
-        <PageTitle
-          kicker="Panel Guru"
-          title="Kelola Topik"
-          right={
-            <Link to="/admin/questions" className="btn-ink bg-volt px-3 py-2 text-sm">
-              <span aria-hidden>→</span> Kelola Soal
-            </Link>
-          }
-        />
+        <AdminHeader title="Kelola Topik" active="topics" />
 
         {/* Add form — the workbench. */}
         <form onSubmit={add} className="panel mb-6 p-5">

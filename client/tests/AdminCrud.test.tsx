@@ -88,7 +88,7 @@ describe('Admin CRUD Pages', () => {
       );
 
       expect(screen.getByRole('heading', { name: 'Kelola Topik' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Kelola Soal' })).toHaveAttribute(
+      expect(screen.getByRole('link', { name: 'Soal' })).toHaveAttribute(
         'href',
         '/admin/questions',
       );
@@ -218,7 +218,7 @@ describe('Admin CRUD Pages', () => {
       );
 
       expect(screen.getByRole('heading', { name: 'Kelola Soal' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Kelola Topik' })).toHaveAttribute(
+      expect(screen.getByRole('link', { name: 'Topik' })).toHaveAttribute(
         'href',
         '/admin/topics',
       );
@@ -457,6 +457,61 @@ describe('Admin CRUD Pages', () => {
 
       expect(confirmSpy).toHaveBeenCalledWith('Yakin ingin menghapus?');
       expect(api.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('AdminHeader logout', () => {
+    it('shows teacher name, nav tabs, and logout button on both admin pages', async () => {
+      useAdminStore.getState().setAuth('test-token', { id: 1, username: 'guru', name: 'Pak Guru' });
+      vi.mocked(api.get).mockResolvedValue({ data: [] });
+
+      render(
+        <MemoryRouter initialEntries={['/admin/topics']}>
+          <App />
+        </MemoryRouter>,
+      );
+
+      expect(await screen.findByText('Pak Guru')).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Soal' })).toHaveAttribute('href', '/admin/questions');
+      expect(screen.getByRole('button', { name: 'Keluar' })).toBeInTheDocument();
+    });
+
+    it('clears auth and navigates to /admin/login when logout is confirmed', async () => {
+      useAdminStore.getState().setAuth('test-token', { id: 1, username: 'guru', name: 'Pak Guru' });
+      vi.mocked(api.get).mockResolvedValue({ data: [] });
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+      render(
+        <MemoryRouter initialEntries={['/admin/topics']}>
+          <App />
+        </MemoryRouter>,
+      );
+
+      fireEvent.click(await screen.findByRole('button', { name: 'Keluar' }));
+
+      expect(confirmSpy).toHaveBeenCalledWith('Keluar dari panel guru, Pak Guru?');
+      expect(useAdminStore.getState().token).toBeNull();
+      expect(useAdminStore.getState().teacher).toBeNull();
+      expect(mockedNavigate).toHaveBeenCalledWith('/admin/login');
+      confirmSpy.mockRestore();
+    });
+
+    it('keeps the session when logout is cancelled', async () => {
+      useAdminStore.getState().setAuth('test-token', { id: 1, username: 'guru', name: 'Pak Guru' });
+      vi.mocked(api.get).mockResolvedValue({ data: [] });
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+      render(
+        <MemoryRouter initialEntries={['/admin/topics']}>
+          <App />
+        </MemoryRouter>,
+      );
+
+      fireEvent.click(await screen.findByRole('button', { name: 'Keluar' }));
+
+      expect(useAdminStore.getState().token).toBe('test-token');
+      expect(mockedNavigate).not.toHaveBeenCalledWith('/admin/login');
+      confirmSpy.mockRestore();
     });
   });
 

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { useAdminStore } from '../stores/useAdminStore';
 import type { Topic } from '../types';
-import { Notice, PageTitle } from '../components/ui';
+import { Notice } from '../components/ui';
+import AdminHeader from '../components/AdminHeader';
 
 const DEFAULT_JSON_TEMPLATES: Record<'pg' | 'tf' | 'matching' | 'ordering', string> = {
   pg: '{"options":["A","B","C","D"],"correctIndex":0}',
@@ -114,15 +115,7 @@ export default function AdminQuestions() {
   return (
     <div className="min-h-screen bg-paper">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:py-10">
-        <PageTitle
-          kicker="Panel Guru"
-          title="Kelola Soal"
-          right={
-            <Link to="/admin/topics" className="btn-ink bg-volt px-3 py-2 text-sm">
-              <span aria-hidden>→</span> Kelola Topik
-            </Link>
-          }
-        />
+        <AdminHeader title="Kelola Soal" active="questions" />
 
         {topics.length === 0 && (
           <div
