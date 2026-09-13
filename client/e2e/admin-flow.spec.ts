@@ -21,7 +21,7 @@ test('admin can login, view, create, and delete questions', async ({ page }) => 
   page.once('dialog', async (dialog) => {
     await dialog.accept();
   });
-  const row = page.locator('.space-y-2 > div', { hasText: 'Soal E2E Admin Smoke Test' });
+  const row = page.locator('li', { hasText: 'Soal E2E Admin Smoke Test' });
   await row.locator('button:has-text("Hapus")').click();
 
   // Verify question is deleted
@@ -53,7 +53,7 @@ test('admin can manage topics via CRUD', async ({ page }) => {
   page.once('dialog', async (dialog) => {
     await dialog.accept();
   });
-  const topicRow = page.locator('.space-y-2 > div', { hasText: 'Topik E2E Nirkabel' });
+  const topicRow = page.locator('li', { hasText: 'Topik E2E Nirkabel' });
   await topicRow.locator('button:has-text("Hapus")').click();
 
   // Verify topic is deleted

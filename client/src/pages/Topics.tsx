@@ -4,6 +4,9 @@ import { api } from '../api/client';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useQuizStore } from '../stores/useQuizStore';
 import type { Topic } from '../types';
+import { HazardBand, LoadingPanel, Notice, PageTitle } from '../components/ui';
+
+const TOPIC_TONES = ['#2F6BFF', '#FFD23F', '#12B886', '#FF4D2E', '#111111'];
 
 export default function Topics() {
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -25,7 +28,7 @@ export default function Topics() {
       .then((r) => setTopics(r.data))
       .catch((err) => {
         console.error('Failed to load topics', err);
-        setError('Gagal memuat topik');
+        setError('Gagal memuat topik.');
       })
       .finally(() => setIsLoadingTopics(false));
   }, [player.name, player.grade, navigate]);
@@ -53,62 +56,86 @@ export default function Topics() {
   };
 
   return (
-    <div className="min-h-screen p-8 bg-gray-50">
-      <h1 className="text-2xl font-bold mb-6">Halo, {player.name}! Pilih topik:</h1>
+    <div className="min-h-screen bg-paper">
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:py-10">
+        <PageTitle
+          kicker={`Halo, ${player.name || 'Siswa'} · Kelas ${player.grade ?? '-'}`}
+          title="Pilih Topikmu"
+          right={
+            <span className="border-3 border-ink bg-mint px-3 py-1.5 font-display text-sm uppercase shadow-pop-sm">
+              Mode Latihan
+            </span>
+          }
+        />
 
-      {error && (
-        <div role="alert" className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
-          {error}
+        {error && (
+          <Notice tone="error" className="mb-4">
+            {error}
+          </Notice>
+        )}
+
+        {isLoadingTopics ? (
+          <LoadingPanel label="Memuat topik" />
+        ) : topics.length === 0 ? (
+          <div className="border-3 border-dashed border-ink bg-paper-2 p-8 text-center shadow-pop">
+            <p className="font-display text-2xl">Belum ada topik</p>
+            <p className="mt-2 font-semibold text-ash">
+              Guru belum menambahkan soal untuk kelas {player.grade}. Coba mode Tantangan dulu.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {topics.map((t, i) => {
+              const starting = startingTopicId === t.id;
+              const busy = startingTopicId !== null;
+              const tone = TOPIC_TONES[i % TOPIC_TONES.length];
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => startQuiz(t.id)}
+                  disabled={busy}
+                  className={`group relative border-3 border-ink text-left shadow-pop transition-transform duration-75 ${
+                    busy ? 'cursor-not-allowed opacity-60' : 'hover:translate-x-[-3px] hover:translate-y-[-3px] hover:shadow-pop-lg'
+                  }`}
+                >
+                  <span
+                    aria-hidden
+                    className="block h-20 border-b-3 border-ink"
+                    style={{ background: tone }}
+                  />
+                  <span className="absolute right-3 top-3 border-3 border-ink bg-cloud px-2 py-0.5 font-display text-xs uppercase">
+                    Kelas {t.grade}
+                  </span>
+                  <span className="block bg-cloud p-4">
+                    <h2 className="font-display text-lg leading-tight">
+                      {starting ? 'Menyiapkan…' : t.name}
+                    </h2>
+                    <span className="mt-2 flex items-center gap-2 font-bold uppercase tracking-wide text-ash">
+                      <span className="text-ink">Mulai</span>
+                      <span aria-hidden className="transition-transform group-hover:translate-x-1">
+                        →
+                      </span>
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        <HazardBand className="my-8" />
+
+        <div className="flex flex-wrap gap-4">
+          <button onClick={() => navigate('/challenge')} className="btn-ink bg-pulse">
+            Mode Tantangan
+          </button>
+          <button onClick={() => navigate('/campaign')} className="btn-ink bg-sun">
+            Mode Campaign
+          </button>
+          <button onClick={() => navigate('/leaderboard')} className="btn-ink bg-cloud">
+            Leaderboard
+          </button>
         </div>
-      )}
-
-      {isLoadingTopics ? (
-        <p className="text-gray-500">Memuat topik...</p>
-      ) : topics.length === 0 ? (
-        <p className="text-gray-500">Tidak ada topik tersedia.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {topics.map((t) => {
-            const isThisStarting = startingTopicId === t.id;
-            return (
-              <button
-                key={t.id}
-                onClick={() => startQuiz(t.id)}
-                disabled={startingTopicId !== null}
-                className={`bg-white p-6 rounded-xl shadow transition text-left ${
-                  startingTopicId !== null ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-lg'
-                }`}
-              >
-                <h2 className="text-lg font-semibold">
-                  {t.name}
-                  {isThisStarting ? ' (Memuat...)' : ''}
-                </h2>
-                <p className="text-sm text-gray-500">Kelas {t.grade}</p>
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="mt-6 flex flex-wrap gap-4">
-        <button
-          onClick={() => navigate('/challenge')}
-          className="bg-purple-600 hover:bg-purple-700 transition text-white px-6 py-3 rounded-lg"
-        >
-          Mode Tantangan
-        </button>
-        <button
-          onClick={() => navigate('/campaign')}
-          className="bg-emerald-600 hover:bg-emerald-700 transition text-white px-6 py-3 rounded-lg"
-        >
-          Mode Campaign
-        </button>
-        <button
-          onClick={() => navigate('/leaderboard')}
-          className="bg-gray-700 hover:bg-gray-800 transition text-white px-6 py-3 rounded-lg"
-        >
-          Leaderboard
-        </button>
       </div>
     </div>
   );

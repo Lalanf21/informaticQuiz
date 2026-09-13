@@ -5,6 +5,10 @@ import { usePlayerStore } from '../stores/usePlayerStore';
 import { useQuizStore } from '../stores/useQuizStore';
 import { getProgress } from './Campaign';
 
+
+const LEVEL_LABEL = ['Easy', 'Medium', 'Hard'];
+const LEVEL_TONE = ['#12B886', '#FFD23F', '#FF4D2E'];
+
 export default function CampaignLevel() {
   const { topicId, n } = useParams();
   const player = usePlayerStore();
@@ -51,21 +55,44 @@ export default function CampaignLevel() {
     }
   }, [sessionId, navigate]);
 
+  const levelNum = Number(n);
+
   if (error) {
+    const code = error === 'NO_QUESTIONS' ? 'BELUM ADA SOAL' : 'TIDAK BISA DIMULAI';
     return (
-      <div className="min-h-screen p-8 bg-gray-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <button
-            onClick={() => navigate('/campaign')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Kembali ke Campaign
+      <div className="flex min-h-screen items-center justify-center bg-paper px-4">
+        <div className="w-full max-w-lg border-3 border-ink bg-blood p-7 text-center shadow-pop-lg">
+          <p className="font-display text-2xl uppercase text-cloud">{code}</p>
+          <p className="mt-2 font-semibold text-cloud">
+            Level ini belum punya soal yang cocok. Coba level lain atau pilih topik berbeda.
+          </p>
+          <button onClick={() => navigate('/campaign')} className="btn-ink mt-5 bg-cloud">
+            ← Kembali ke Campaign
           </button>
         </div>
       </div>
     );
   }
 
-  return <div className="p-8">Memuat level...</div>;
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-paper px-4">
+      <div className="w-full max-w-lg">
+        <div className="border-3 border-ink bg-cloud p-7 text-center shadow-pop-lg">
+          <span
+            className="mx-auto mb-4 flex h-20 w-20 items-center justify-center border-3 border-ink font-display text-4xl shadow-pop-sm"
+            style={{ background: LEVEL_TONE[levelNum - 1] ?? '#FFD23F' }}
+          >
+            {levelNum}
+          </span>
+          <p className="font-display text-3xl uppercase">
+            Level {levelNum} · {LEVEL_LABEL[levelNum - 1] ?? ''}
+          </p>
+          <div className="mt-5 flex items-center justify-center gap-3">
+            <span className="inline-block h-4 w-4 animate-blink bg-pulse" aria-hidden />
+            <p className="font-semibold uppercase tracking-wide">Memuat level...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

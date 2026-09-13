@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import type { Topic } from '../types';
+import { HazardBand, LoadingPanel, Notice, PageTitle } from '../components/ui';
 
 const STORAGE_KEY = 'campaign-progress';
 
@@ -30,6 +31,9 @@ export function setProgress(topicId: number, level: number) {
   }
 }
 
+const LEVEL_LABEL = ['Easy', 'Medium', 'Hard'];
+const LEVEL_TONE = ['#12B886', '#FFD23F', '#FF4D2E'];
+
 export default function Campaign() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,64 +52,106 @@ export default function Campaign() {
       .then((r) => setTopics(r.data))
       .catch((err) => {
         console.error('Failed to load campaign topics', err);
-        setError('Gagal memuat topik');
+        setError('Gagal memuat topik.');
       })
       .finally(() => setLoading(false));
   }, [player.name, player.grade, navigate]);
 
   return (
-    <div className="min-h-screen p-8 bg-gray-50">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Mode Campaign</h1>
-          <button
-            onClick={() => navigate('/topics')}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition"
-          >
-            Kembali ke Topik
-          </button>
-        </div>
+    <div className="min-h-screen bg-paper">
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:py-10">
+        <PageTitle
+          kicker={`Peta Level · Kelas ${player.grade ?? '-'}`}
+          title="Mode Campaign"
+          right={
+            <button onClick={() => navigate('/topics')} className="btn-ink bg-cloud">
+              Kembali ke Topik
+            </button>
+          }
+        />
 
         {error && (
-          <div role="alert" className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+          <Notice tone="error" className="mb-4">
             {error}
-          </div>
+          </Notice>
         )}
 
         {loading ? (
-          <p className="text-gray-500">Memuat topik...</p>
+          <LoadingPanel label="Memuat topik" />
         ) : topics.length === 0 ? (
-          <p className="text-gray-500">Tidak ada topik tersedia.</p>
+          <div className="border-3 border-dashed border-ink bg-paper-2 p-8 text-center shadow-pop">
+            <p className="font-display text-2xl">Tidak ada topik tersedia.</p>
+            <p className="mt-2 font-semibold text-ash">
+              Belum ada topik untuk kelas {player.grade}. Coba mode lain dulu.
+            </p>
+          </div>
         ) : (
-          topics.map((t) => {
-            const unlocked = getProgress(t.id);
-            return (
-              <div key={t.id} className="mb-6 bg-white p-6 rounded-xl shadow">
-                <h2 className="text-lg font-semibold text-gray-800 mb-1">{t.name}</h2>
-                {t.description && <p className="text-sm text-gray-500 mb-4">{t.description}</p>}
-                <div className="flex gap-3">
-                  {[1, 2, 3].map((lvl) => {
-                    const isUnlocked = lvl <= unlocked;
-                    return (
-                      <button
-                        key={lvl}
-                        disabled={!isUnlocked}
-                        onClick={() => navigate(`/campaign/${t.id}/${lvl}`)}
-                        className={`px-4 py-2 rounded-lg font-medium transition ${
-                          isUnlocked
-                            ? 'bg-green-500 text-white hover:bg-green-600'
-                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        }`}
-                      >
-                        Level {lvl}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })
+          <div className="space-y-6">
+            {topics.map((t) => {
+              const unlocked = getProgress(t.id);
+              return (
+                <section key={t.id} className="border-3 border-ink bg-cloud shadow-pop">
+                  <header className="flex flex-wrap items-center justify-between gap-2 border-b-3 border-ink bg-volt px-4 py-3">
+                    <h2 className="text-lg text-cloud">{t.name}</h2>
+                    <span className="border-2 border-ink bg-cloud px-2 py-0.5 text-xs font-bold uppercase">
+                      Level {Math.min(unlocked, 3)}/3 terbuka
+                    </span>
+                  </header>
+                  <div className="grid grid-cols-3 divide-x-3 divide-ink">
+                    {[1, 2, 3].map((lvl) => {
+                      const isUnlocked = lvl <= unlocked;
+                      const tone = LEVEL_TONE[lvl - 1];
+                      return (
+                        <button
+                          key={lvl}
+                          disabled={!isUnlocked}
+                          onClick={() => navigate(`/campaign/${t.id}/${lvl}`)}
+                          aria-label={`Level ${lvl}`}
+                          className={`relative flex flex-col items-center gap-1 py-6 transition-transform duration-75 ${
+                            isUnlocked
+                              ? 'hover:-translate-y-0.5 hover:shadow-[inset_0_-4px_0_0_#111]'
+                              : 'cursor-not-allowed'
+                          }`}
+                          style={isUnlocked ? { background: tone } : undefined}
+                        >
+                          <span
+                            className={`flex h-12 w-12 items-center justify-center border-3 border-ink font-display text-3xl sm:text-4xl ${
+                              isUnlocked ? '' : 'bg-paper-2 text-ash'
+                            }`}
+                          >
+                            {isUnlocked ? lvl : '✕'}
+                          </span>
+                          <span
+                            className={`text-xs font-bold uppercase tracking-widest ${
+                              isUnlocked ? '' : 'text-ash'
+                            }`}
+                          >
+                            Level {lvl} · {LEVEL_LABEL[lvl - 1]}
+                          </span>
+                          {!isUnlocked && (
+                            <span
+                              aria-hidden
+                              className="absolute inset-0 opacity-15"
+                              style={{
+                                background:
+                                  'repeating-linear-gradient(45deg, #111 0 8px, transparent 8px 16px)',
+                              }}
+                            />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <footer className="border-t-3 border-ink bg-paper-2 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-ash">
+                    Lulus ≥70% untuk membuka level berikutnya
+                  </footer>
+                </section>
+              );
+            })}
+          </div>
         )}
+
+        <HazardBand className="my-8" />
       </div>
     </div>
   );

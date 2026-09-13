@@ -1,3 +1,114 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+  PAPAN KOMIK — direction contract (new-world redesign, 2026-09)
+  THESIS: every screen is one comic panel — unshared flat-colour canvas,
+  heavy ink borders, hard offset shadows, monumental display type; scores
+  and status are announced like chapter titles. Refuses: soft SaaS cards,
+  gradients, blur shadows, blue-purple default.
+  OWN-WORLD: paper #FDF6E3 ground, ink #111 borders 3-5px, blocks pulse
+  #FF4D2E / volt #2F6BFF / sun #FFD23F / mint #12B886 / blood #E03131;
+  Archivo Black display (uppercase, tight), Archivo UI; hard shadows
+  4/7px offset 0 blur; halftone dots + hazard 45° stripes; label plates
+  with corner screws; state by block inversion, never tint alone.
+  STORY: siswa langsung tahu ini game, bukan form; guru mengelola konten
+  di panel kerja yang sama tapi tenang. Aksi utama selalu satu, oranye.
+  FIRST VIEWPORT (Home): full-bleed paper canvas dengan dot halftone;
+  judul "INFORMATICQUIZ" Archivo Black raksasa dengan shadow pop-lg di
+  panel judul; di bawahnya form nama+kelas dalam label plate; tombol
+  MULAI pulse block lebar penuh; strip 3 kartu mode di bawah lipatan.
+  FORM: komik-panel neo-brutalis, direction roll candidate #6
+  (seed key c7118bda), raised by split-flap (live ranking), industrial
+  (label plates + hazard), gameboy (block-inversion states).
+  FINISH: unreviewed and undocumented is unfinished; this build ends with
+  the finish review, the verdict, DESIGN.md, and every shipping raster
+  carrying its provenance.
+*/
+
+@layer base {
+  html {
+    @apply font-sans text-ink antialiased;
+  }
+  body {
+    @apply bg-paper text-ink;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display uppercase leading-none tracking-tight;
+  }
+  ::selection {
+    @apply bg-sun text-ink;
+  }
+}
+
+@layer components {
+  /* Ink-bordered panel — the base container of the world. */
+  .panel {
+    @apply border-3 border-ink bg-cloud shadow-pop;
+  }
+  /* Solid colour panel — flat, unshared. */
+  .panel-solid {
+    @apply border-3 border-ink shadow-pop;
+  }
+  /* Label plate with corner screws — industrial donation. */
+  .label-plate {
+    @apply relative inline-block border-3 border-ink bg-paper-2 px-3 py-1.5 shadow-pop-sm;
+  }
+  .label-plate::before,
+  .label-plate::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 9999px;
+    border: 2px solid #111111;
+    background: #fdf6e3;
+    transform: translateY(-50%);
+  }
+  .label-plate::before {
+    left: 4px;
+  }
+  .label-plate::after {
+    right: 4px;
+  }
+  /* Primary action — the one orange button. */
+  .btn-ink {
+    @apply inline-flex items-center justify-center gap-2 border-3 border-ink px-5 py-2.5 font-display uppercase tracking-wide shadow-pop transition-transform duration-75;
+  }
+  .btn-ink:active:not(:disabled) {
+    @apply translate-x-1 translate-y-1 shadow-pop-none;
+  }
+  .btn-ink:focus-visible {
+    @apply outline-none shadow-pop-sun;
+  }
+  .btn-ink:disabled {
+    @apply cursor-not-allowed opacity-50 shadow-pop;
+  }
+  /* Input in the world's grammar. */
+  .input-ink {
+    @apply w-full border-3 border-ink bg-cloud px-3 py-2.5 font-medium shadow-pop-sm outline-none transition-shadow;
+  }
+  .input-ink:focus {
+    @apply shadow-pop-sun;
+  }
+  .input-ink::placeholder {
+    @apply text-ash;
+  }
+  /* Tag / chip. */
+  .tag-ink {
+    @apply inline-block border-2 border-ink px-2 py-0.5 text-xs font-bold uppercase tracking-wide;
+  }
+}
+
+@layer utilities {
+  .text-stroke-paper {
+    -webkit-text-stroke: 2px #fdf6e3;
+  }
+  .halftone {
+    @apply bg-dots;
+  }
+}

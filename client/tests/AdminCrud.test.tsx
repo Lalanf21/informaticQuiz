@@ -232,8 +232,8 @@ describe('Admin CRUD Pages', () => {
         });
       });
 
-      expect(await screen.findByText('[pg] Apa itu pseudocode?')).toBeInTheDocument();
-      expect(screen.getByText('[tf] IP address berupa angka.')).toBeInTheDocument();
+      expect(await screen.findByText('Apa itu pseudocode?')).toBeInTheDocument();
+      expect(screen.getByText('IP address berupa angka.')).toBeInTheDocument();
     });
 
     it('shows notice and disables submit button when topics list is empty', async () => {
@@ -263,7 +263,7 @@ describe('Admin CRUD Pages', () => {
         </MemoryRouter>,
       );
 
-      await screen.findByText('[pg] Apa itu pseudocode?');
+      await screen.findByText('Apa itu pseudocode?');
 
       const typeSelect = screen.getByLabelText('Tipe Soal');
       const dataTextarea = screen.getByPlaceholderText(/JSON data/);
@@ -298,7 +298,7 @@ describe('Admin CRUD Pages', () => {
         </MemoryRouter>,
       );
 
-      await screen.findByText('[pg] Apa itu pseudocode?');
+      await screen.findByText('Apa itu pseudocode?');
 
       fireEvent.change(screen.getByLabelText('Pilih Topik'), { target: { value: '2' } });
       fireEvent.change(screen.getByLabelText('Tipe Soal'), { target: { value: 'tf' } });
@@ -346,7 +346,7 @@ describe('Admin CRUD Pages', () => {
         );
       });
 
-      expect(await screen.findByText('[tf] Kabel UTP pakai konektor RJ45?')).toBeInTheDocument();
+      expect(await screen.findByText('Kabel UTP pakai konektor RJ45?')).toBeInTheDocument();
       expect(screen.getByPlaceholderText('Prompt soal')).toHaveValue('');
     });
 
@@ -362,7 +362,7 @@ describe('Admin CRUD Pages', () => {
         </MemoryRouter>,
       );
 
-      await screen.findByText('[pg] Apa itu pseudocode?');
+      await screen.findByText('Apa itu pseudocode?');
 
       fireEvent.change(screen.getByPlaceholderText('Prompt soal'), {
         target: { value: 'Tes invalid' },
@@ -396,7 +396,7 @@ describe('Admin CRUD Pages', () => {
         </MemoryRouter>,
       );
 
-      await screen.findByText('[pg] Apa itu pseudocode?');
+      await screen.findByText('Apa itu pseudocode?');
 
       fireEvent.change(screen.getByPlaceholderText(/JSON data/), {
         target: { value: '{"options":["a","b"],"correctIndex":5}' },
@@ -423,7 +423,7 @@ describe('Admin CRUD Pages', () => {
         </MemoryRouter>,
       );
 
-      await screen.findByText('[pg] Apa itu pseudocode?');
+      await screen.findByText('Apa itu pseudocode?');
 
       const deleteButtons = screen.getAllByRole('button', { name: 'Hapus' });
       fireEvent.click(deleteButtons[0]);
@@ -450,7 +450,7 @@ describe('Admin CRUD Pages', () => {
         </MemoryRouter>,
       );
 
-      await screen.findByText('[pg] Apa itu pseudocode?');
+      await screen.findByText('Apa itu pseudocode?');
 
       const deleteButtons = screen.getAllByRole('button', { name: 'Hapus' });
       fireEvent.click(deleteButtons[0]);

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { usePlayerStore } from '../stores/usePlayerStore';
 import { useQuizStore } from '../stores/useQuizStore';
+import { HazardBand, Notice, PageTitle } from '../components/ui';
 
 export default function Challenge() {
   const [count, setCount] = useState(10);
@@ -42,52 +43,83 @@ export default function Challenge() {
     }
   };
 
+  const seconds = Math.min(count * 60, 600);
+
   return (
-    <div className="min-h-screen p-8 bg-purple-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-96">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">Mode Tantangan</h1>
-        <p className="text-sm text-gray-600 mb-4">
-          Selesaikan kuis secepat mungkin sebelum waktu habis!
-        </p>
+    <div className="min-h-screen bg-paper">
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:py-10">
+        <PageTitle
+          kicker="Mode"
+          title="Mode Tantangan"
+          right={
+            <span className="border-3 border-ink bg-pulse px-3 py-1.5 font-display text-sm uppercase shadow-pop-sm">
+              Timer Nyala
+            </span>
+          }
+        />
+
+        <div className="mb-6 border-3 border-ink bg-pulse p-5 shadow-pop-lg sm:p-7">
+          <p className="max-w-lg font-semibold leading-snug">
+            Soal acak dari semua topikmu. Waktu habis, jawaban otomatis terkumpul. Makin cepat, makin
+            seru.
+          </p>
+        </div>
 
         {error && (
-          <div
-            role="alert"
-            className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm"
-          >
+          <Notice tone="error" className="mb-5">
             {error}
-          </div>
+          </Notice>
         )}
 
-        <label htmlFor="question-count-select" className="block mb-2 font-medium text-gray-700">
-          Jumlah soal:
-        </label>
-        <select
-          id="question-count-select"
-          value={count}
-          onChange={(e) => setCount(Number(e.target.value))}
-          disabled={loading}
-          className="w-full p-3 border rounded-lg mb-6 focus:ring-2 focus:ring-purple-500"
-        >
-          <option value={5}>5 soal</option>
-          <option value={10}>10 soal</option>
-          <option value={15}>15 soal</option>
-        </select>
+        <fieldset disabled={loading} className="panel p-5 sm:p-6">
+          <legend className="label-plate pl-4 pr-4 text-[11px] font-bold uppercase tracking-[0.2em]">
+            Jumlah Soal
+          </legend>
+          <div className="mt-2 flex flex-wrap items-end gap-4">
+            <div>
+              <label htmlFor="question-count-select" className="mb-1.5 block text-xs font-bold uppercase tracking-wide">
+                Jumlah soal:
+              </label>
+              <select
+                id="question-count-select"
+                value={count}
+                onChange={(e) => setCount(Number(e.target.value))}
+                className="input-ink w-auto cursor-pointer font-bold uppercase"
+              >
+                <option value={5}>5 soal</option>
+                <option value={10}>10 soal</option>
+                <option value={15}>15 soal</option>
+              </select>
+            </div>
+            <span aria-hidden className="hidden flex-1 border-t-3 border-dashed border-ink/30 sm:block" />
+            <div className="flex items-center gap-3 border-3 border-ink bg-paper-2 px-4 py-3 shadow-pop-sm">
+              <span aria-hidden className="font-display text-2xl text-pulse">
+                ◷
+              </span>
+              <p className="font-bold uppercase tracking-wide">
+                Timer: {Math.floor(seconds / 60)} menit {seconds % 60 ? `${seconds % 60} detik` : ''}
+              </p>
+            </div>
+          </div>
 
-        <button
-          type="button"
-          onClick={start}
-          disabled={loading}
-          className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold transition disabled:opacity-50"
-        >
-          {loading ? 'Memuat...' : 'Mulai Tantangan'}
-        </button>
+          <button
+            type="button"
+            onClick={start}
+            disabled={loading}
+            className="btn-ink mt-6 w-full bg-pulse py-4 text-xl"
+          >
+            {loading ? 'Memuat...' : 'Mulai Tantangan'}
+          </button>
+        </fieldset>
 
-        <div className="mt-4 text-center">
-          <Link to="/topics" className="text-sm text-purple-600 hover:underline">
-            Kembali ke Pilih Topik
-          </Link>
-        </div>
+        <HazardBand className="my-8" />
+
+        <Link
+          to="/topics"
+          className="font-bold uppercase tracking-wide underline decoration-3 underline-offset-4 hover:bg-sun"
+        >
+          Kembali ke Pilih Topik
+        </Link>
       </div>
     </div>
   );

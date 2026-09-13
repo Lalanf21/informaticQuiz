@@ -103,11 +103,13 @@ describe('Result page', () => {
     expect(screen.getByText('Benar — +10 poin')).toBeInTheDocument();
     expect(screen.getByText('Salah — +0 poin')).toBeInTheDocument();
 
-    const correctAnswerEl = screen.getByText('Apa fungsi CPU?').closest('div');
-    const incorrectAnswerEl = screen.getByText('RAM adalah memori permanen?').closest('div');
+    const correctAnswerEl = screen.getByText('Apa fungsi CPU?').closest('div[data-correct]');
+    const incorrectAnswerEl = screen
+      .getByText('RAM adalah memori permanen?')
+      .closest('div[data-correct]');
 
-    expect(correctAnswerEl).toHaveClass('bg-green-50');
-    expect(incorrectAnswerEl).toHaveClass('bg-red-50');
+    expect(correctAnswerEl).toHaveAttribute('data-correct', 'true');
+    expect(incorrectAnswerEl).toHaveAttribute('data-correct', 'false');
   });
 
   it('navigates to /topics when "Kuis Lagi" button clicked', async () => {

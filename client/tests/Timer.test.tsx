@@ -34,8 +34,8 @@ describe('Timer component', () => {
 
     const timer = screen.getByRole('timer');
     expect(timer).toHaveTextContent('0:30');
-    expect(timer).toHaveClass('text-gray-700');
-    expect(timer).not.toHaveClass('text-red-600');
+    expect(timer).toHaveClass('bg-sun');
+    expect(timer).not.toHaveClass('bg-blood');
   });
 
   it('applies text-red-600 class when remaining time is < 30 seconds', () => {
@@ -43,8 +43,8 @@ describe('Timer component', () => {
 
     const timer = screen.getByRole('timer');
     expect(timer).toHaveTextContent('0:29');
-    expect(timer).toHaveClass('text-red-600');
-    expect(timer).not.toHaveClass('text-gray-700');
+    expect(timer).toHaveClass('bg-blood');
+    expect(timer).not.toHaveClass('bg-sun');
   });
 
   it('counts down every second', () => {
@@ -69,19 +69,19 @@ describe('Timer component', () => {
 
     const timer = screen.getByRole('timer');
     expect(timer).toHaveTextContent('0:31');
-    expect(timer).toHaveClass('text-gray-700');
+    expect(timer).toHaveClass('bg-sun');
 
     act(() => {
       vi.advanceTimersByTime(1000);
     });
     expect(timer).toHaveTextContent('0:30');
-    expect(timer).toHaveClass('text-gray-700');
+    expect(timer).toHaveClass('bg-sun');
 
     act(() => {
       vi.advanceTimersByTime(1000);
     });
     expect(timer).toHaveTextContent('0:29');
-    expect(timer).toHaveClass('text-red-600');
+    expect(timer).toHaveClass('bg-blood');
   });
 
   it('calls onExpire when timer reaches 0', () => {

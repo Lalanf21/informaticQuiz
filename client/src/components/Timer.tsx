@@ -68,13 +68,20 @@ export default function Timer({ seconds, onExpire, startedAt }: Props) {
 
   const mins = Math.floor(remaining / 60);
   const secs = remaining % 60;
+  const danger = remaining < 30;
+  const time = `${mins}:${secs.toString().padStart(2, '0')}`;
   return (
     <div
       role="timer"
       aria-label="Waktu tersisa"
-      className={`text-lg font-bold ${remaining < 30 ? 'text-red-600' : 'text-gray-700'}`}
+      className={`inline-flex items-center gap-2 border-3 border-ink px-3 py-1.5 shadow-pop-sm ${
+        danger ? 'bg-blood text-cloud' : 'bg-sun text-ink'
+      }`}
     >
-      {mins}:{secs.toString().padStart(2, '0')}
+      <span aria-hidden className={`font-display ${danger ? 'animate-blink' : ''}`}>
+        ◷
+      </span>
+      <span className="font-display text-xl tabular-nums tracking-wider">{time}</span>
     </div>
   );
 }

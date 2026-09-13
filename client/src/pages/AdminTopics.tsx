@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { useAdminStore } from '../stores/useAdminStore';
 import type { Topic } from '../types';
+import { Notice, PageTitle } from '../components/ui';
+
+const GRADE_TONE: Record<number, string> = { 7: '#2F6BFF', 8: '#12B886', 9: '#FF4D2E' };
 
 export default function AdminTopics() {
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -64,45 +67,85 @@ export default function AdminTopics() {
   };
 
   return (
-    <div className="min-h-screen p-8 bg-gray-50">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Kelola Topik</h1>
-        <Link to="/admin/questions" className="bg-gray-700 text-white px-4 py-2 rounded">
-          Kelola Soal
-        </Link>
-      </div>
-      <form onSubmit={add} className="flex gap-2 mb-6">
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Nama topik"
-          className="flex-1 p-2 border rounded"
+    <div className="min-h-screen bg-paper">
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:py-10">
+        <PageTitle
+          kicker="Panel Guru"
+          title="Kelola Topik"
+          right={
+            <Link to="/admin/questions" className="btn-ink bg-volt px-3 py-2 text-sm">
+              <span aria-hidden>→</span> Kelola Soal
+            </Link>
+          }
         />
-        <select
-          value={grade}
-          onChange={(e) => setGrade(Number(e.target.value) as 7 | 8 | 9)}
-          className="p-2 border rounded"
-        >
-          <option value={7}>Kelas 7</option>
-          <option value={8}>Kelas 8</option>
-          <option value={9}>Kelas 9</option>
-        </select>
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-          Tambah
-        </button>
-      </form>
-      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
-      <div className="space-y-2">
-        {topics.map((t) => (
-          <div key={t.id} className="flex justify-between items-center bg-white p-3 rounded shadow">
-            <span>
-              {t.name} (Kelas {t.grade})
-            </span>
-            <button onClick={() => del(t.id)} className="text-red-600 hover:text-red-800">
-              Hapus
+
+        {/* Add form — the workbench. */}
+        <form onSubmit={add} className="panel mb-6 p-5">
+          <h2 className="mb-4 text-lg">Tambah Topik</h2>
+          <div className="flex flex-wrap gap-3">
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Nama topik"
+              aria-label="Nama topik"
+              className="input-ink min-w-0 flex-1"
+            />
+            <select
+              value={grade}
+              onChange={(e) => setGrade(Number(e.target.value) as 7 | 8 | 9)}
+              aria-label="Kelas"
+              className="input-ink w-auto cursor-pointer font-bold uppercase"
+            >
+              <option value={7}>Kelas 7</option>
+              <option value={8}>Kelas 8</option>
+              <option value={9}>Kelas 9</option>
+            </select>
+            <button type="submit" className="btn-ink bg-mint">
+              Tambah
             </button>
           </div>
-        ))}
+        </form>
+
+        {error && (
+          <Notice tone="error" className="mb-4">
+            {error}
+          </Notice>
+        )}
+
+        {/* Topic rows. */}
+        <div className="border-3 border-ink bg-cloud shadow-pop">
+          <h2 className="border-b-3 border-ink bg-sun px-4 py-2 font-display text-sm uppercase tracking-[0.2em]">
+            Daftar Topik ({topics.length})
+          </h2>
+          {topics.length === 0 ? (
+            <p className="px-4 py-8 text-center font-semibold text-ash">
+              Belum ada topik. Tambahkan yang pertama di atas.
+            </p>
+          ) : (
+            <ul className="divide-y-3 divide-ink">
+              {topics.map((t) => (
+                <li key={t.id} className="flex items-center gap-3 px-4 py-3">
+                  <span
+                    className="flex h-9 w-9 shrink-0 items-center justify-center border-3 border-ink font-display text-sm text-cloud"
+                    style={{ background: GRADE_TONE[t.grade] ?? '#111111' }}
+                    aria-label={`Kelas ${t.grade}`}
+                  >
+                    {t.grade}
+                  </span>
+                  <span className="min-w-0 flex-1 font-semibold">
+                    {t.name} (Kelas {t.grade})
+                  </span>
+                  <button
+                    onClick={() => del(t.id)}
+                    className="shrink-0 border-3 border-ink bg-blood px-3 py-1.5 text-xs font-bold uppercase text-cloud shadow-pop-sm hover:bg-ink"
+                  >
+                    Hapus
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );

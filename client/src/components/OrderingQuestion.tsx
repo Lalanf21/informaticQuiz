@@ -15,7 +15,7 @@ interface Props {
   onAnswer: (order: string[]) => void;
 }
 
-function SortableItem({ id }: { id: string }) {
+function SortableItem({ id, index }: { id: string; index: number }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -28,9 +28,22 @@ function SortableItem({ id }: { id: string }) {
       style={style}
       {...attributes}
       {...listeners}
-      className="p-3 bg-white border rounded-lg cursor-move select-none touch-none"
+      className="flex cursor-move touch-none select-none items-center gap-3 border-3 border-ink bg-cloud p-3 shadow-pop transition-shadow"
     >
-      {id}
+      <span
+        aria-hidden
+        className="flex h-9 w-9 shrink-0 items-center justify-center border-3 border-ink bg-sun font-display text-sm tabular-nums"
+      >
+        {index + 1}
+      </span>
+      <span className="font-medium">{id}</span>
+      <span
+        aria-hidden
+        className="ml-auto font-display text-lg leading-none text-ash"
+        title="Geser untuk mengurutkan"
+      >
+        ≡
+      </span>
     </div>
   );
 }
@@ -65,14 +78,22 @@ export default function OrderingQuestion({ items, initialOrder, onAnswer }: Prop
   };
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-      <SortableContext items={order} strategy={verticalListSortingStrategy}>
-        <div className="space-y-2">
-          {order.map((item) => (
-            <SortableItem key={item} id={item} />
-          ))}
-        </div>
-      </SortableContext>
-    </DndContext>
+    <div>
+      <p className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-ash">
+        <span aria-hidden className="font-display text-base text-ink">
+          ⇅
+        </span>
+        Geser kartu untuk mengurutkan
+      </p>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={order} strategy={verticalListSortingStrategy}>
+          <div className="space-y-3">
+            {order.map((item, i) => (
+              <SortableItem key={item} id={item} index={i} />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
+    </div>
   );
 }

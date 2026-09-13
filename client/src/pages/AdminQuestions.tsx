@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { useAdminStore } from '../stores/useAdminStore';
 import type { Topic } from '../types';
+import { Notice, PageTitle } from '../components/ui';
 
 const DEFAULT_JSON_TEMPLATES: Record<'pg' | 'tf' | 'matching' | 'ordering', string> = {
   pg: '{"options":["A","B","C","D"],"correctIndex":0}',
@@ -11,6 +12,14 @@ const DEFAULT_JSON_TEMPLATES: Record<'pg' | 'tf' | 'matching' | 'ordering', stri
     '{"pairs":[{"left":"Istilah 1","right":"Definisi 1"},{"left":"Istilah 2","right":"Definisi 2"}]}',
   ordering: '{"correctOrder":["Langkah 1","Langkah 2","Langkah 3"]}',
 };
+
+const TYPE_TONE: Record<string, string> = {
+  pg: '#2F6BFF',
+  tf: '#12B886',
+  matching: '#FFD23F',
+  ordering: '#FF4D2E',
+};
+const DIFF_TONE: Record<string, string> = { easy: '#12B886', medium: '#FFD23F', hard: '#FF4D2E' };
 
 export default function AdminQuestions() {
   const [questions, setQuestions] = useState<any[]>([]);
@@ -103,92 +112,182 @@ export default function AdminQuestions() {
   };
 
   return (
-    <div className="min-h-screen p-8 bg-gray-50">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Kelola Soal</h1>
-        <Link to="/admin/topics" className="bg-gray-700 text-white px-4 py-2 rounded">
-          Kelola Topik
-        </Link>
-      </div>
-      <form onSubmit={add} className="bg-white p-4 rounded shadow mb-6 space-y-2">
-        <h2 className="font-semibold">Tambah Soal</h2>
+    <div className="min-h-screen bg-paper">
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:py-10">
+        <PageTitle
+          kicker="Panel Guru"
+          title="Kelola Soal"
+          right={
+            <Link to="/admin/topics" className="btn-ink bg-volt px-3 py-2 text-sm">
+              <span aria-hidden>→</span> Kelola Topik
+            </Link>
+          }
+        />
+
         {topics.length === 0 && (
-          <p className="text-amber-600 text-sm">Silakan buat topik terlebih dahulu</p>
-        )}
-        <select
-          aria-label="Pilih Topik"
-          value={form.topicId}
-          onChange={(e) => setForm({ ...form, topicId: Number(e.target.value) })}
-          className="w-full p-2 border rounded"
-        >
-          {topics.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
-            </option>
-          ))}
-        </select>
-        <select
-          aria-label="Tipe Soal"
-          value={form.type}
-          onChange={(e) => handleTypeChange(e.target.value as any)}
-          className="w-full p-2 border rounded"
-        >
-          <option value="pg">Pilihan Ganda</option>
-          <option value="tf">True/False</option>
-          <option value="matching">Matching</option>
-          <option value="ordering">Ordering</option>
-        </select>
-        <input
-          value={form.prompt}
-          onChange={(e) => setForm({ ...form, prompt: e.target.value })}
-          placeholder="Prompt soal"
-          className="w-full p-2 border rounded"
-        />
-        <textarea
-          value={form.dataStr}
-          onChange={(e) => setForm({ ...form, dataStr: e.target.value })}
-          placeholder={`JSON data, e.g. ${DEFAULT_JSON_TEMPLATES[form.type]}`}
-          className="w-full p-2 border rounded h-24"
-        />
-        <select
-          aria-label="Tingkat Kesulitan"
-          value={form.difficulty}
-          onChange={(e) => setForm({ ...form, difficulty: e.target.value as any })}
-          className="w-full p-2 border rounded"
-        >
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
-        </select>
-        <input
-          type="number"
-          aria-label="Poin"
-          value={form.points}
-          onChange={(e) => setForm({ ...form, points: Number(e.target.value) })}
-          className="w-full p-2 border rounded"
-        />
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-        <button
-          type="submit"
-          disabled={topics.length === 0}
-          className={`px-4 py-2 rounded text-white ${
-            topics.length === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600'
-          }`}
-        >
-          Simpan
-        </button>
-      </form>
-      <div className="space-y-2">
-        {questions.map((q) => (
-          <div key={q.id} className="flex justify-between items-center bg-white p-3 rounded shadow">
-            <span>
-              [{q.type}] {q.prompt}
+          <div
+            role="status"
+            className="mb-5 flex flex-wrap items-center gap-x-2 gap-y-1 border-3 border-ink bg-volt px-3 py-2 font-semibold text-cloud shadow-pop-sm"
+          >
+            <span className="text-sm">
+              Silakan buat topik terlebih dahulu
             </span>
-            <button onClick={() => del(q.id)} className="text-red-600 hover:text-red-800">
-              Hapus
-            </button>
+            <span className="text-sm">di halaman Kelola Topik.</span>
           </div>
-        ))}
+        )}
+
+        {/* Add form — workbench. */}
+        <form onSubmit={add} className="panel mb-6 p-5">
+          <h2 className="mb-4 text-lg">Tambah Soal</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="q-topic" className="mb-1.5 block text-xs font-bold uppercase tracking-wide">
+                Topik
+              </label>
+              <select
+                id="q-topic"
+                aria-label="Pilih Topik"
+                value={form.topicId}
+                onChange={(e) => setForm({ ...form, topicId: Number(e.target.value) })}
+                className="input-ink cursor-pointer"
+              >
+                {topics.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="q-type" className="mb-1.5 block text-xs font-bold uppercase tracking-wide">
+                Tipe
+              </label>
+              <select
+                id="q-type"
+                aria-label="Tipe Soal"
+                value={form.type}
+                onChange={(e) => handleTypeChange(e.target.value as any)}
+                className="input-ink cursor-pointer"
+              >
+                <option value="pg">Pilihan Ganda</option>
+                <option value="tf">Benar / Salah</option>
+                <option value="matching">Jodohkan</option>
+                <option value="ordering">Urutkan</option>
+              </select>
+            </div>
+            <div className="sm:col-span-2">
+              <label htmlFor="q-prompt" className="mb-1.5 block text-xs font-bold uppercase tracking-wide">
+                Pertanyaan
+              </label>
+              <input
+                id="q-prompt"
+                value={form.prompt}
+                onChange={(e) => setForm({ ...form, prompt: e.target.value })}
+                placeholder="Prompt soal"
+                className="input-ink"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label htmlFor="q-data" className="mb-1.5 block text-xs font-bold uppercase tracking-wide">
+                Data Soal (JSON)
+              </label>
+              <textarea
+                id="q-data"
+                value={form.dataStr}
+                onChange={(e) => setForm({ ...form, dataStr: e.target.value })}
+                placeholder={`JSON data, mis. ${DEFAULT_JSON_TEMPLATES[form.type]}`}
+                className="input-ink h-24 font-mono text-sm"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="q-difficulty"
+                className="mb-1.5 block text-xs font-bold uppercase tracking-wide"
+              >
+                Kesulitan
+              </label>
+              <select
+                id="q-difficulty"
+                aria-label="Tingkat Kesulitan"
+                value={form.difficulty}
+                onChange={(e) => setForm({ ...form, difficulty: e.target.value as any })}
+                className="input-ink cursor-pointer"
+              >
+                <option value="easy">Mudah</option>
+                <option value="medium">Sedang</option>
+                <option value="hard">Sulit</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="q-points" className="mb-1.5 block text-xs font-bold uppercase tracking-wide">
+                Poin
+              </label>
+              <input
+                id="q-points"
+                type="number"
+                min={1}
+                aria-label="Poin"
+                value={form.points}
+                onChange={(e) => setForm({ ...form, points: Number(e.target.value) })}
+                className="input-ink"
+              />
+            </div>
+          </div>
+          {error && (
+            <Notice tone="error" className="mt-4">
+              {error}
+            </Notice>
+          )}
+          <button type="submit" disabled={topics.length === 0} className="btn-ink mt-5 bg-mint">
+            Simpan
+          </button>
+        </form>
+
+        {/* Question rows. */}
+        <div className="border-3 border-ink bg-cloud shadow-pop">
+          <h2 className="border-b-3 border-ink bg-sun px-4 py-2 font-display text-sm uppercase tracking-[0.2em]">
+            Bank Soal ({questions.length})
+          </h2>
+          {questions.length === 0 ? (
+            <p className="px-4 py-8 text-center font-semibold text-ash">
+              Belum ada soal. Tambahkan yang pertama di atas.
+            </p>
+          ) : (
+            <ul className="divide-y-3 divide-ink">
+              {questions.map((q) => (
+                <li key={q.id} className="flex items-center gap-3 px-4 py-3">
+                  <span
+                    className="shrink-0 border-3 border-ink px-2 py-1 font-display text-[11px] uppercase text-cloud"
+                    style={{ background: TYPE_TONE[q.type] ?? '#111111' }}
+                    aria-hidden
+                  >
+                    {q.type}
+                  </span>
+                  <span className="min-w-0 flex-1 font-medium">
+                    {q.prompt}
+                    {q.difficulty && (
+                      <span
+                        className="ml-2 inline-block border-2 border-ink px-1.5 py-0.5 align-middle text-[10px] font-bold uppercase"
+                        style={{ background: DIFF_TONE[q.difficulty] ?? '#FDF6E3' }}
+                      >
+                        {q.difficulty}
+                      </span>
+                    )}
+                  </span>
+                  <span className="shrink-0 border-2 border-ink bg-paper-2 px-2 py-0.5 text-xs font-bold tabular-nums">
+                    {q.points}p
+                  </span>
+                  <button
+                    onClick={() => del(q.id)}
+                    className="shrink-0 border-3 border-ink bg-blood px-3 py-1.5 text-xs font-bold uppercase text-cloud shadow-pop-sm hover:bg-ink"
+                  >
+                    Hapus
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );

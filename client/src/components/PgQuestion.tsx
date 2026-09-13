@@ -24,22 +24,37 @@ export default function PgQuestion({ options, initialAnswer, onAnswer }: Props) 
   }, [options, initialAnswer, shuffled]);
 
   return (
-    <div className="space-y-2">
-      {shuffled.map((item, shuffleIdx) => (
-        <button
-          key={shuffleIdx}
-          type="button"
-          onClick={() => {
-            setSelectedShuffleIdx(shuffleIdx);
-            onAnswer(item.i);
-          }}
-          className={`w-full p-3 border rounded-lg text-left ${
-            selectedShuffleIdx === shuffleIdx ? 'bg-blue-100 border-blue-500' : 'bg-white'
-          }`}
-        >
-          {item.opt}
-        </button>
-      ))}
+    <div className="space-y-3">
+      {shuffled.map((item, shuffleIdx) => {
+        const selected = selectedShuffleIdx === shuffleIdx;
+        return (
+          <button
+            key={shuffleIdx}
+            type="button"
+            aria-pressed={selected}
+            aria-label={item.opt}
+            onClick={() => {
+              setSelectedShuffleIdx(shuffleIdx);
+              onAnswer(item.i);
+            }}
+            className={`flex w-full items-center gap-3 border-3 border-ink p-3 text-left transition-all duration-75 ${
+              selected
+                ? 'translate-x-1 translate-y-1 bg-sun shadow-pop-none'
+                : 'bg-cloud shadow-pop hover:bg-paper-2'
+            }`}
+          >
+            <span
+              aria-hidden
+              className={`flex h-8 w-8 shrink-0 items-center justify-center border-3 border-ink font-display text-sm ${
+                selected ? 'bg-ink text-cloud' : 'bg-paper'
+              }`}
+            >
+              {String.fromCharCode(65 + shuffleIdx)}
+            </span>
+            <span className="font-medium">{item.opt}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -63,9 +63,9 @@ describe('Topics page', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('Memuat topik...')).toBeInTheDocument();
+    expect(screen.getByText('Memuat topik…', { exact: false })).toBeInTheDocument();
 
-    expect(await screen.findByText('Halo, Budi Santoso! Pilih topik:')).toBeInTheDocument();
+    expect(await screen.findByText(/Halo, Budi Santoso/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Algoritma Pemrograman' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Jaringan Komputer' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Sistem Operasi' })).toBeInTheDocument();
@@ -82,7 +82,7 @@ describe('Topics page', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText('Tidak ada topik tersedia.')).toBeInTheDocument();
+    expect(await screen.findByText('Belum ada topik')).toBeInTheDocument();
   });
 
   it('renders error message when topics fetch fails', async () => {
@@ -146,7 +146,7 @@ describe('Topics page', () => {
 
     // Topic button is now disabled with loading indicator
     expect(topicButton).toBeDisabled();
-    expect(screen.getByText(/Memuat\.\.\./)).toBeInTheDocument();
+    expect(screen.getByText(/Menyiapkan/)).toBeInTheDocument();
 
     // Click again while in-flight
     fireEvent.click(topicButton);
@@ -244,7 +244,7 @@ describe('Topics page', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText('Halo, Siti! Pilih topik:')).toBeInTheDocument();
+    expect(await screen.findByText(/Halo, Siti/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Kecerdasan Buatan' })).toBeInTheDocument();
   });
 });

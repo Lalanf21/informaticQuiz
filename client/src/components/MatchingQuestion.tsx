@@ -48,38 +48,48 @@ export default function MatchingQuestion({ pairs, rights, initialAnswer, onAnswe
   };
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <div className="space-y-2">
-        {pairs.map((l) => (
-          <div key={l} className="flex gap-2 items-center">
-            <button
-              type="button"
-              onClick={() => handleLeftClick(l)}
-              className={`flex-1 p-3 border rounded-lg text-left ${
-                selectedLeft === l
-                  ? 'bg-yellow-200 border-yellow-500'
-                  : mapping[l]
-                    ? 'bg-green-50'
-                    : 'bg-white'
-              }`}
-            >
-              {l} {mapping[l] && <span className="text-xs text-gray-500">→ {mapping[l]}</span>}
-            </button>
-            {mapping[l] && (
+    <div className="grid grid-cols-2 gap-3 sm:gap-5">
+      <div className="space-y-3">
+        {pairs.map((l) => {
+          const isSelected = selectedLeft === l;
+          const isMatched = Boolean(mapping[l]);
+          return (
+            <div key={l} className="flex items-stretch gap-2">
               <button
                 type="button"
-                title="Hapus pasangan"
-                aria-label={`Hapus pasangan ${l}`}
-                onClick={() => unpair(l)}
-                className="px-2 py-1 text-xs text-red-600 hover:text-red-800 border border-red-200 rounded"
+                onClick={() => handleLeftClick(l)}
+                aria-pressed={isSelected}
+                className={`flex-1 border-3 border-ink p-3 text-left transition-all duration-75 ${
+                  isSelected
+                    ? 'translate-x-1 translate-y-1 bg-sun shadow-pop-none'
+                    : isMatched
+                      ? 'bg-mint shadow-pop-sm'
+                      : 'bg-cloud shadow-pop hover:bg-paper-2'
+                }`}
               >
-                Hapus
+                <span className="block font-bold">{l}</span>
+                {mapping[l] && (
+                  <span className="mt-1 inline-block border-2 border-ink bg-cloud px-1.5 py-0.5 text-xs font-bold">
+                    → {mapping[l]}
+                  </span>
+                )}
               </button>
-            )}
-          </div>
-        ))}
+              {mapping[l] && (
+                <button
+                  type="button"
+                  title="Hapus pasangan"
+                  aria-label={`Hapus pasangan ${l}`}
+                  onClick={() => unpair(l)}
+                  className="border-3 border-ink bg-blood px-2 font-display text-cloud shadow-pop-sm hover:bg-ink"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
-      <div className="space-y-2">
+      <div className="space-y-3">
         {rights.map((r) => {
           const isUsed = Object.values(mapping).includes(r);
           return (
@@ -88,8 +98,10 @@ export default function MatchingQuestion({ pairs, rights, initialAnswer, onAnswe
               type="button"
               onClick={() => handleRightClick(r)}
               disabled={isUsed}
-              className={`w-full p-3 border rounded-lg text-left ${
-                isUsed ? 'bg-gray-200 line-through text-gray-400' : 'bg-white'
+              className={`w-full border-3 border-ink p-3 text-left font-semibold transition-all duration-75 ${
+                isUsed
+                  ? 'cursor-not-allowed border-ash bg-paper-2 text-ash line-through shadow-none'
+                  : 'bg-paper shadow-pop hover:bg-sun'
               }`}
             >
               {r}

@@ -49,7 +49,7 @@ describe('QuestionRenderer', () => {
       );
 
       const falseBtn = screen.getByRole('button', { name: 'Salah' });
-      expect(falseBtn.className).toContain('bg-red-500');
+      expect(falseBtn.className).toContain('bg-blood');
 
       fireEvent.click(falseBtn);
       expect(onAnswer).toHaveBeenCalledWith({ value: false });
@@ -62,7 +62,7 @@ describe('QuestionRenderer', () => {
         />,
       );
       const trueBtn = screen.getByRole('button', { name: 'Benar' });
-      expect(trueBtn.className).toContain('bg-green-500');
+      expect(trueBtn.className).toContain('bg-mint');
     });
   });
 
@@ -126,11 +126,11 @@ describe('QuestionRenderer', () => {
       );
 
       const betaBtn = screen.getByRole('button', { name: 'Beta' });
-      expect(betaBtn.className).toContain('bg-blue-100');
+      expect(betaBtn.className).toContain('bg-sun');
 
       const alphaBtn = screen.getByRole('button', { name: 'Alpha' });
       fireEvent.click(alphaBtn);
-      expect(alphaBtn.className).toContain('bg-blue-100');
+      expect(alphaBtn.className).toContain('bg-sun');
       expect(onAnswer).toHaveBeenCalledWith({ index: 0 });
     });
   });
@@ -341,7 +341,7 @@ describe('QuestionRenderer', () => {
       // Click Benar on Q1 -> button becomes green
       const btnBenar = screen.getByRole('button', { name: 'Benar' });
       fireEvent.click(btnBenar);
-      expect(btnBenar.className).toContain('bg-green-500');
+      expect(btnBenar.className).toContain('bg-mint');
 
       // Navigate to Q2 without initialAnswer
       rerender(<QuestionRenderer question={q2} onAnswer={onAnswer} />);
@@ -349,8 +349,8 @@ describe('QuestionRenderer', () => {
       // Buttons on Q2 should be reset / unselected
       const newBtnBenar = screen.getByRole('button', { name: 'Benar' });
       const newBtnSalah = screen.getByRole('button', { name: 'Salah' });
-      expect(newBtnBenar.className).not.toContain('bg-green-500');
-      expect(newBtnSalah.className).not.toContain('bg-red-500');
+      expect(newBtnBenar.className).not.toContain('bg-mint');
+      expect(newBtnSalah.className).not.toContain('bg-blood');
     });
   });
 

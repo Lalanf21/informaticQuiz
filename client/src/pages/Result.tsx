@@ -41,13 +41,11 @@ export default function Result() {
 
   if (error) {
     return (
-      <div className="min-h-screen p-8 bg-gray-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <button
-            onClick={() => navigate('/topics')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-          >
+      <div className="flex min-h-screen items-center justify-center bg-paper px-4">
+        <div className="w-full max-w-lg border-3 border-ink bg-blood p-7 text-center text-cloud shadow-pop-lg">
+          <p className="font-display text-2xl uppercase">Hasil Tidak Ditemukan</p>
+          <p className="mt-2 font-semibold">{error}</p>
+          <button onClick={() => navigate('/topics')} className="btn-ink mt-5 bg-cloud">
             Kembali ke Topik
           </button>
         </div>
@@ -55,10 +53,19 @@ export default function Result() {
     );
   }
 
-  if (!data) return <div className="p-8">Memuat hasil...</div>;
+  if (!data) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-paper px-4">
+        <div className="panel w-full max-w-md animate-panel-in p-6 text-center">
+          <span className="mx-auto mb-3 block h-5 w-5 animate-blink bg-pulse" aria-hidden />
+          <p className="font-display text-2xl uppercase">Memuat hasil...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen p-8 bg-gray-50 flex items-center justify-center">
+    <div className="flex min-h-screen items-start justify-center bg-paper px-4 py-8 sm:py-12">
       <ResultScreen
         data={data}
         onPlayAgain={() => navigate('/topics')}

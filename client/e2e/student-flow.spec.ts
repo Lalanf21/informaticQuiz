@@ -4,7 +4,7 @@ async function completeActiveQuiz(page: Page) {
   await expect(page.locator('text=Sebelumnya')).toBeVisible();
 
   const nextBtn = page.locator('text=Berikutnya');
-  const questionCard = page.locator('.bg-white.p-6');
+  const questionCard = page.getByTestId('question-card');
 
   let maxSteps = 20;
   while ((await nextBtn.isVisible()) && maxSteps-- > 0) {
@@ -107,7 +107,7 @@ test('student unlocks campaign level 2 after passing level 1', async ({ page }) 
     } else if (await correctTf.isVisible()) {
       await correctTf.click();
     } else {
-      const anyOpt = page.locator('.bg-white.p-6 button').first();
+      const anyOpt = page.getByTestId('question-card').locator('button').first();
       if (await anyOpt.isVisible()) await anyOpt.click();
     }
 
